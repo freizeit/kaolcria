@@ -44,6 +44,4 @@ defmodule ListJsonFilesTest do
   test "list_json_files(), 2 json files", context do
     assert Aircloak.list_json_files(context[:tpath]) == ["ee.json", "gg.json"]
   end
-
-
 end

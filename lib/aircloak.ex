@@ -50,5 +50,8 @@ defmodule Aircloak do
   Returns all the *.json files in the given `path`.
   """
   def list_json_files(path) do
+    File.ls!(path)
+    |> Enum.filter(fn f -> Regex.match?(~r/\.json$/, f) end)
+    |> Enum.sort
   end
 end
