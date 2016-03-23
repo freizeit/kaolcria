@@ -1,6 +1,6 @@
-defmodule AircloakTest do
+defmodule KaolcriaTest do
   use ExUnit.Case
-  doctest Aircloak
+  doctest Kaolcria
 
   test "the truth" do
     assert 1 + 1 == 2
@@ -10,7 +10,7 @@ end
 
 defmodule ListJsonFilesTest do
   use ExUnit.Case
-  doctest Aircloak
+  doctest Kaolcria
 
   setup context do
     {tpath, 0} = System.cmd("mktemp", ["-d", "/tmp/air.XXXXX.cloak"])
@@ -30,18 +30,18 @@ defmodule ListJsonFilesTest do
 
   @tag fs: []
   test "list_json_files(), empty dir", context do
-    assert Aircloak.list_json_files(context[:tpath]) == []
+    assert Kaolcria.list_json_files(context[:tpath]) == []
   end
 
 
   @tag fs: ["aa.abc", "bb.xxx"]
   test "list_json_files(), no json files", context do
-    assert Aircloak.list_json_files(context[:tpath]) == []
+    assert Kaolcria.list_json_files(context[:tpath]) == []
   end
 
 
   @tag fs: ["ca.abc", "db.xxx", "ee.json", "ffjson", "gg.json"]
   test "list_json_files(), 2 json files", context do
-    assert Aircloak.list_json_files(context[:tpath]) == ["ee.json", "gg.json"]
+    assert Kaolcria.list_json_files(context[:tpath]) == ["ee.json", "gg.json"]
   end
 end

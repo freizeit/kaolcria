@@ -1,7 +1,5 @@
-defmodule Aircloak do
+defmodule Kaolcria do
   @moduledoc """
-  Aircloak coding exercise
-
   Let's assume we have a dataset of users, and the city in which they live. We
   want to discover how many users live in each city. The process would be the
   following:
