@@ -14,7 +14,27 @@ defmodule KaolcriaTest do
 
   test "get_airline_purchase_counts(), mixed prices in list" do
     assert Kaolcria.get_airline_purchase_counts(
-      [101, 101, 101, 1002, 1002, 10003]) == %{101 => 3, 1002 =>2, 10003 => 1}
+      [101, 101, 101, 1002, 1002, 10003]) == %{101 => 3, 1002 => 2, 10003 => 1}
+  end
+
+
+  test "merge_airline_purchase_counts(), empty price count list" do
+    assert Kaolcria.merge_airline_purchase_counts([]) == %{}
+  end
+
+
+  test "merge_airline_purchase_counts(), single price count list" do
+    input = [%{101 => 3, 1002 => 2, 10003 => 1}]
+    assert Kaolcria.merge_airline_purchase_counts(
+      input) == %{101 => 3, 1002 => 2, 10003 => 1}
+  end
+
+
+  test "merge_airline_purchase_counts(), multiple/mixed price count lists" do
+    input = [%{}, %{101 => 3, 1002 => 2, 10003 => 1}, %{}, %{102 => 2},
+             %{101 => 1, 105 => 5}]
+    assert Kaolcria.merge_airline_purchase_counts(
+      input) == %{101 => 4, 102 => 2, 105 => 5, 1002 => 2, 10003 => 1}
   end
 end
 

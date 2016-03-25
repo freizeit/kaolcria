@@ -70,14 +70,35 @@ defmodule Kaolcria do
 
 
   @doc """
-  Returns a map (possibly empty) with airline purchase price counts for a
-  given list with purchase prices.
+  Returns a (per-user) map (possibly empty) with airline purchase price counts
+  for a given list with purchase prices (aka "report")
   """
   def get_airline_purchase_counts(prices) do
     prices
     |> Enum.map_reduce(%{}, fn(x, acc) ->
-      Access.get_and_update(acc, x, fn(v) ->
+      Map.get_and_update(acc, x, fn(v) ->
         if v == nil do {nil,1} else {v,v+1} end end) end)
     |> elem(1)
+  end
+
+
+  @doc """
+  Merges multiple airline purchase price counts maps and returns the results in
+  a map (aka "aggregate").
+  """
+  def merge_airline_purchase_counts(prices) do
+    merge_price_count_maps(%{}, prices)
+  end
+
+  defp merge_price_count_maps(result, []) do
+    result
+  end
+  defp merge_price_count_maps(result, [pcm | pcms]) do
+    result = pcm
+    |> Enum.map_reduce(result, fn({price, count}, acc) ->
+      Map.get_and_update(acc, price, fn(v) ->
+        if v == nil do {nil,count} else {v,v+count} end end) end)
+    |> elem(1)
+    merge_price_count_maps(result, pcms)
   end
 end
