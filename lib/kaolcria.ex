@@ -67,4 +67,17 @@ defmodule Kaolcria do
     |> Enum.map(fn d -> d["amount"] end)
     |> Enum.sort
   end
+
+
+  @doc """
+  Returns a map (possibly empty) with airline purchase price counts for a
+  given list with purchase prices.
+  """
+  def get_airline_purchase_counts(prices) do
+    prices
+    |> Enum.map_reduce(%{}, fn(x, acc) ->
+      Access.get_and_update(acc, x, fn(v) ->
+        if v == nil do {nil,1} else {v,v+1} end end) end)
+    |> elem(1)
+  end
 end

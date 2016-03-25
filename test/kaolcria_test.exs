@@ -2,8 +2,19 @@ defmodule KaolcriaTest do
   use ExUnit.Case
   doctest Kaolcria
 
-  test "the truth" do
-    assert 1 + 1 == 2
+  test "get_airline_purchase_counts(), empty prices list" do
+    assert Kaolcria.get_airline_purchase_counts([]) == %{}
+  end
+
+
+  test "get_airline_purchase_counts(), only one kind of price in list" do
+    assert Kaolcria.get_airline_purchase_counts([101, 101, 101]) == %{101 => 3}
+  end
+
+
+  test "get_airline_purchase_counts(), mixed prices in list" do
+    assert Kaolcria.get_airline_purchase_counts(
+      [101, 101, 101, 1002, 1002, 10003]) == %{101 => 3, 1002 =>2, 10003 => 1}
   end
 end
 
