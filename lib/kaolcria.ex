@@ -45,11 +45,26 @@ defmodule Kaolcria do
 
 
   @doc """
-  Returns all the *.json files in the given `path`.
+  Returns a sorted list with all the *.json files in the given `path`.
   """
   def list_json_files(path) do
     File.ls!(path)
     |> Enum.filter(fn f -> Regex.match?(~r/\.json$/, f) end)
+    |> Enum.map(fn f -> path <> "/" <> f end)
+    |> Enum.sort
+  end
+
+
+  @doc """
+  Returns a sorted list (possibly empty) with all the airline purchase prices
+  for the given `path`.
+  """
+  def extract_airline_purchases(path) do
+    File.read!(path)
+    |> Poison.Parser.parse!
+    |> Access.get("purchases")
+    |> Enum.filter(fn d -> d["type"] == "airline" end)
+    |> Enum.map(fn d -> d["amount"] end)
     |> Enum.sort
   end
 end
