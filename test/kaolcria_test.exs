@@ -196,6 +196,7 @@ defmodule ProcessJsonFilesTest do
     end
 
     on_exit fn ->
+      File.chmod!(tpath, 0o755)
       System.cmd("rm", ["-rf", tpath])
     end
 
@@ -203,6 +204,7 @@ defmodule ProcessJsonFilesTest do
   end
 
 
+  @tag dirmode: 0o255
   @tag jfs: [
     {"1.json", 0o600, """
       {"purchases":[
@@ -234,8 +236,89 @@ defmodule ProcessJsonFilesTest do
       ]}
     """}
     ]
+  test "process_json_files(), directory not readable", context do
+    assert Kaolcria.process_json_files(context[:tpath]) == %{}
+  end
+
+
+  @tag dirmode: 0o755
+  @tag jfs: [
+    {"1.json", 0o600, """
+      {"purchases":[
+        {"type":"hotel","amount":460},
+        {"type":"drink","amount":6},
+        {"type":"airline","amount":150},
+        {"type":"car","amount":928759},
+        {"type":"drink","amount":4}
+      ]}
+    """},
+    {"15.json", 0o640, """
+      {"purchases":[
+        {"type":"airline","amount":10000},
+        {"type":"airline","amount":10000},
+        {"type":"airline","amount":10000},
+        {"type":"airline","amount":10000},
+        {"type":"airline","amount":10000},
+        {"type":"pillow","amount":25}
+      ]}
+    """},
+    {"16.json", 0o644, """
+      {"purchases":[]}
+    """},
+    {"17.json", 0o644, """
+      {"purchases":[
+        {"type":"airline","amount":10000},
+        {"type":"airline","amount":10000},
+        {"type":"airline","amount":9000},
+        {"type":"airline","amount":9000},
+        {"type":"airline","amount":9000}
+      ]}
+    """}
+    ]
   test "process_json_files(), all files readable", context do
-    assert 1 == 1
+    assert Kaolcria.process_json_files(context[:tpath]) == %{10000 => 7}
+  end
+
+
+  @tag dirmode: 0o755
+  @tag jfs: [
+    {"1.json", 0o200, """
+      {"purchases":[
+        {"type":"airline","amount":10000},
+        {"type":"airline","amount":10000},
+        {"type":"hotel","amount":460},
+        {"type":"drink","amount":6},
+        {"type":"airline","amount":150},
+        {"type":"car","amount":928759},
+        {"type":"drink","amount":4}
+      ]}
+    """},
+    {"15.json", 0o640, """
+      {"purchases":[
+        {"type":"airline","amount":10000},
+        {"type":"airline","amount":10000},
+        {"type":"airline","amount":10000},
+        {"type":"airline","amount":10000},
+        {"type":"airline","amount":10000},
+        {"type":"airline","amount":9000},
+        {"type":"airline","amount":9000},
+        {"type":"pillow","amount":25}
+      ]}
+    """},
+    {"16.json", 0o644, """
+      {"purchases":[]}
+    """},
+    {"17.json", 0o644, """
+      {"purchases":[
+        {"type":"airline","amount":9000},
+        {"type":"airline","amount":9000},
+        {"type":"airline","amount":9000},
+        {"type":"airline","amount":9000}
+      ]}
+    """}
+    ]
+  test "process_json_files(), 1.json not readable", context do
+    assert Kaolcria.process_json_files(context[:tpath]) == %{9000 => 7}
   end
 
 

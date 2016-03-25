@@ -118,5 +118,17 @@ defmodule Kaolcria do
   Returns an aggregated and anonymized map with airline price counts.
   """
   def process_json_files(path) do
+    me = self
+    list_json_files(path)
+    |> Enum.map(fn path ->
+        spawn_link fn ->
+          result = extract_airline_purchases(path)
+          |> get_airline_purchase_counts
+          send me, result
+        end
+      end)
+    |> Enum.map(fn(_) -> receive do result -> result end end)
+    |> merge_airline_purchase_counts
+    |> anonymize_airline_purchase_counts
   end
 end
