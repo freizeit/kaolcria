@@ -178,3 +178,70 @@ defmodule ExtractAirlinePurchasesTest do
     File.close file
   end
 end
+
+
+defmodule ProcessJsonFilesTest do
+  use ExUnit.Case
+
+  setup context do
+    {tpath, 0} = System.cmd("mktemp", ["-d", "/tmp/acl.XXXXX.jsond"])
+    tpath = String.rstrip(tpath)
+    Enum.each(context[:jfs], fn {name, mode, content} ->
+      path = tpath <> "/" <> name
+      write_file(path, content)
+      File.chmod!(path, mode)
+    end)
+    if context[:dirmode] != nil do
+      File.chmod!(tpath, context[:dirmode])
+    end
+
+    on_exit fn ->
+      System.cmd("rm", ["-rf", tpath])
+    end
+
+    {:ok, tpath: tpath}
+  end
+
+
+  @tag jfs: [
+    {"1.json", 0o600, """
+      {"purchases":[
+        {"type":"hotel","amount":460},
+        {"type":"drink","amount":6},
+        {"type":"airline","amount":150},
+        {"type":"car","amount":928759},
+        {"type":"drink","amount":4}
+      ]}
+    """},
+    {"15.json", 0o640, """
+      {"purchases":[
+        {"type":"airline","amount":10000},
+        {"type":"airline","amount":10000},
+        {"type":"airline","amount":10000},
+        {"type":"airline","amount":10000},
+        {"type":"airline","amount":10000},
+        {"type":"pillow","amount":25}
+      ]}
+    """},
+    {"16.json", 0o644, """
+      {"purchases":[]}
+    """},
+    {"17.json", 0o644, """
+      {"purchases":[
+        {"type":"airline","amount":9000},
+        {"type":"airline","amount":9000},
+        {"type":"airline","amount":9000}
+      ]}
+    """}
+    ]
+  test "process_json_files(), all files readable", context do
+    assert 1 == 1
+  end
+
+
+  defp write_file(path, content) do
+    {:ok, file} = File.open path, [:write]
+    IO.binwrite file, content
+    File.close file
+  end
+end

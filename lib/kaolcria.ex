@@ -110,4 +110,13 @@ defmodule Kaolcria do
   def anonymize_airline_purchase_counts(pcm) do
     pcm |> Enum.filter(fn({_, count}) -> count >= 6 end) |> Enum.into(%{})
   end
+
+
+  @doc """
+  Processes, aggregates and anonymizes the data contained in the json files in
+  the given directory.
+  Returns an aggregated and anonymized map with airline price counts.
+  """
+  def process_json_files(path) do
+  end
 end
