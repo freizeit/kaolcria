@@ -1,6 +1,5 @@
 defmodule KaolcriaTest do
   use ExUnit.Case
-  doctest Kaolcria
 
   test "get_airline_purchase_counts(), empty prices list" do
     assert Kaolcria.get_airline_purchase_counts([]) == %{}
@@ -57,7 +56,6 @@ end
 
 defmodule ListJsonFilesTest do
   use ExUnit.Case
-  doctest Kaolcria
 
   setup context do
     {tpath, 0} = System.cmd("mktemp", ["-d", "/tmp/air.XXXXX.cloak"])
