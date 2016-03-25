@@ -97,7 +97,6 @@ end
 defmodule ExtractAirlinePurchasesTest do
   use ExUnit.Case
 
-
   setup context do
     {fpath, 0} = System.cmd("mktemp", ["acl.XXXXX.json"])
     fpath = String.rstrip(fpath)
