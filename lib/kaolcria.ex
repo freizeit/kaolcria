@@ -101,12 +101,16 @@ defmodule Kaolcria do
   defp merge_price_count_maps(result, []) do
     result
   end
-  defp merge_price_count_maps(result, [pcm | pcms]) do
+  defp merge_price_count_maps(result, [{:ok, pcm} | pcms]) do
     result = pcm
     |> Enum.map_reduce(result, fn({price, count}, acc) ->
       Map.get_and_update(acc, price, fn(v) ->
         if v == nil do {nil,count} else {v,v+count} end end) end)
     |> elem(1)
+    merge_price_count_maps(result, pcms)
+  end
+  defp merge_price_count_maps(result, [{:error, err, path} | pcms]) do
+    IO.puts(:stderr, "Error: #{err} :: #{path}")
     merge_price_count_maps(result, pcms)
   end
 
@@ -133,14 +137,6 @@ defmodule Kaolcria do
             case extract_airline_purchases(path) do
               {:ok, prices} -> {:ok, get_airline_purchase_counts(prices)}
               {:error, ev} -> {:error, ev, path}
-            end
-          end)
-        |> Enum.map(fn(apc) ->
-            case apc do
-              {:ok, result} -> result
-              {:error, err, path} ->
-                IO.puts(:stderr, "Error: #{err} :: #{path}")
-                []
             end
           end)
         |> merge_airline_purchase_counts
