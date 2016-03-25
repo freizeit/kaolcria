@@ -101,4 +101,13 @@ defmodule Kaolcria do
     |> elem(1)
     merge_price_count_maps(result, pcms)
   end
+
+
+  @doc """
+  Filters the given map with airline price counts so that only prices with
+  counts of 6 or above remain (aka "anonymize").
+  """
+  def anonymize_airline_purchase_counts(pcm) do
+    pcm |> Enum.filter(fn({_, count}) -> count >= 6 end) |> Enum.into(%{})
+  end
 end

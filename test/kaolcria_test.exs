@@ -36,6 +36,23 @@ defmodule KaolcriaTest do
     assert Kaolcria.merge_airline_purchase_counts(
       input) == %{101 => 4, 102 => 2, 105 => 5, 1002 => 2, 10003 => 1}
   end
+
+
+  test "anonymize_airline_purchase_counts(), empty price count list" do
+    assert Kaolcria.anonymize_airline_purchase_counts(%{}) == %{}
+  end
+
+  test "anonymize_airline_purchase_counts(), all counts 6+" do
+    input = %{201 => 6, 2002 => 12, 20003 => 17}
+    assert Kaolcria.anonymize_airline_purchase_counts(input) == input
+  end
+
+
+  test "anonymize_airline_purchase_counts(), mixed bag of counts" do
+    input = %{201 => 6, 2002 => 0, 20003 => 7, 1 => 5, 0 => -1}
+    expected = %{201 => 6, 20003 => 7}
+    assert Kaolcria.anonymize_airline_purchase_counts(input) == expected
+  end
 end
 
 
