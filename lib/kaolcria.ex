@@ -48,10 +48,14 @@ defmodule Kaolcria do
   Returns a sorted list with all the *.json files in the given `path`.
   """
   def list_json_files(path) do
-    File.ls!(path)
-    |> Enum.filter(fn f -> Regex.match?(~r/\.json$/, f) end)
-    |> Enum.map(fn f -> path <> "/" <> f end)
-    |> Enum.sort
+    case File.ls(path) do
+      {:ok, fs} ->
+        {:ok, fs
+        |> Enum.filter(fn f -> Regex.match?(~r/\.json$/, f) end)
+        |> Enum.map(fn f -> path <> "/" <> f end)
+        |> Enum.sort}
+      {:error, _} = ev -> ev
+    end
   end
 
 
@@ -60,12 +64,16 @@ defmodule Kaolcria do
   for the given `path`.
   """
   def extract_airline_purchases(path) do
-    File.read!(path)
-    |> Poison.Parser.parse!
-    |> Access.get("purchases")
-    |> Enum.filter(fn d -> d["type"] == "airline" end)
-    |> Enum.map(fn d -> d["amount"] end)
-    |> Enum.sort
+    case File.read(path) do
+      {:error, _} = err -> err
+      {:ok, body} -> {:ok,
+        body
+        |> Poison.Parser.parse!
+        |> Access.get("purchases")
+        |> Enum.filter(fn d -> d["type"] == "airline" end)
+        |> Enum.map(fn d -> d["amount"] end)
+        |> Enum.sort}
+    end
   end
 
 
@@ -118,17 +126,28 @@ defmodule Kaolcria do
   Returns an aggregated and anonymized map with airline price counts.
   """
   def process_json_files(path) do
-    me = self
-    list_json_files(path)
-    |> Enum.map(fn path ->
-        spawn_link fn ->
-          result = extract_airline_purchases(path)
-          |> get_airline_purchase_counts
-          send me, result
-        end
-      end)
-    |> Enum.map(fn(_) -> receive do result -> result end end)
-    |> merge_airline_purchase_counts
-    |> anonymize_airline_purchase_counts
+    case list_json_files(path) do
+      {:ok, files} ->
+        files
+        |> Enum.map(fn path ->
+            case extract_airline_purchases(path) do
+              {:ok, prices} -> {:ok, get_airline_purchase_counts(prices)}
+              {:error, ev} -> {:error, ev, path}
+            end
+          end)
+        |> Enum.map(fn(apc) ->
+            case apc do
+              {:ok, result} -> result
+              {:error, err, path} ->
+                IO.puts(:stderr, "Error: #{err} :: #{path}")
+                []
+            end
+          end)
+        |> merge_airline_purchase_counts
+        |> anonymize_airline_purchase_counts
+      {:error, err} ->
+        IO.puts(:stderr, "Error: #{err} :: #{path}")
+        %{}
+    end
   end
 end
