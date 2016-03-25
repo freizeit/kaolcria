@@ -49,8 +49,8 @@ defmodule Kaolcria do
   """
   def list_json_files(path) do
     case File.ls(path) do
-      {:ok, fs} ->
-        {:ok, fs
+      {:ok, fs} -> {:ok,
+        fs
         |> Enum.filter(fn f -> Regex.match?(~r/\.json$/, f) end)
         |> Enum.map(fn f -> path <> "/" <> f end)
         |> Enum.sort}
