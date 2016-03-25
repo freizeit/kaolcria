@@ -24,9 +24,8 @@ defmodule KaolcriaTest do
 
 
   test "merge_airline_purchase_counts(), single price count list" do
-    input = [%{101 => 3, 1002 => 2, 10003 => 1}]
-    assert Kaolcria.merge_airline_purchase_counts(
-      input) == %{101 => 3, 1002 => 2, 10003 => 1}
+    input = %{101 => 3, 1002 => 2, 10003 => 1}
+    assert Kaolcria.merge_airline_purchase_counts([input]) == input
   end
 
 
