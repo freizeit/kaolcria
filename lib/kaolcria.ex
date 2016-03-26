@@ -129,11 +129,14 @@ defmodule Kaolcria do
     case list_json_files(path) do
       {:ok, files} ->
         me = self
+
+        ### report
         files
         |> Enum.map(fn path ->
           spawn_link fn ->
               case extract_airline_purchases(path) do
-                {:ok, prices} -> send me, {:ok, get_airline_purchase_counts(prices)}
+                {:ok, prices} ->
+                  send me, {:ok, get_airline_purchase_counts(prices)}
                 {:error, ev} -> send me, {:error, ev, path}
               end
             end
@@ -145,7 +148,9 @@ defmodule Kaolcria do
                 %{}
             end
           end)
+        ### aggregate
         |> merge_airline_purchase_counts
+        ### anonymize
         |> anonymize_airline_purchase_counts
       {:error, err} ->
         IO.puts(:stderr, "Error: #{err} :: #{path}")
