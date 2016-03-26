@@ -146,6 +146,7 @@ defmodule Kaolcria do
     end
   end
 
+
   @doc """
   Return the average of a map with aggregated and anonymized airline
   purchase prices.
@@ -157,4 +158,23 @@ defmodule Kaolcria do
     sum/Enum.count(maaapp)
   end
   def aaapp_average(_), do: 0
+
+
+  @doc """
+  Return the median of a map with aggregated and anonymized airline
+  purchase prices.
+  """
+  def aaapp_median(maaapp) when maaapp != %{} do
+    keys = Map.keys(maaapp) |> Enum.sort
+    num_keys = Enum.count(keys)
+    if rem(num_keys, 2) == 1 do
+      # odd number of keys
+      Enum.at(keys, div(num_keys, 2))
+    else
+      m1 = Enum.at(keys, div(num_keys, 2) - 1)
+      m2 = Enum.at(keys, div(num_keys, 2))
+      (m1 + m2)/2
+    end
+  end
+  def aaapp_median(_), do: 0
 end

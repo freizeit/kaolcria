@@ -1,6 +1,27 @@
 defmodule KaolcriaTest do
   use ExUnit.Case
 
+  test "aaapp_median(), empty map with airline purchases prices" do
+    input = %{}
+    expected = 0
+    assert Kaolcria.aaapp_median(input) == expected
+  end
+
+
+  test "aaapp_median(), good map with airline purchases prices" do
+    input = %{201 => 6, 2002 => 12, 20003 => 17}
+    expected = 2002
+    assert Kaolcria.aaapp_median(input) == expected
+  end
+
+
+  test "aaapp_median(), contrived map with airline purchases prices" do
+    input = %{0 => 11, 1 => 22, 2 => 33, 3 => 44}
+    expected = 1.5
+    assert Kaolcria.aaapp_median(input) == expected
+  end
+
+
   test "aaapp_average(), empty map with airline purchases prices" do
     input = %{}
     expected = 0
