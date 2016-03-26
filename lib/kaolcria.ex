@@ -60,8 +60,8 @@ defmodule Kaolcria do
 
 
   @doc """
-  Returns a sorted list (possibly empty) with all the airline purchase prices
-  for the given `path`.
+  Returns a sorted list (possibly empty) with the airline purchase prices
+  for the given `path`. All the prices in the returned list will be unique.
   """
   def extract_airline_purchases(path) do
     case File.read(path) do
@@ -72,27 +72,16 @@ defmodule Kaolcria do
         |> Access.get("purchases")
         |> Enum.filter(fn d -> d["type"] == "airline" end)
         |> Enum.map(fn d -> d["amount"] end)
-        |> Enum.sort}
+        |> Enum.sort
+        |> Enum.dedup}
     end
   end
 
 
   @doc """
-  Returns a (per-user) map (possibly empty) with airline purchase price counts
-  for a given list with purchase prices (aka "report")
-  """
-  def get_airline_purchase_counts(prices) do
-    prices
-    |> Enum.map_reduce(%{}, fn(x, acc) ->
-      Map.get_and_update(acc, x, fn(v) ->
-        if v == nil do {nil,1} else {v,v+1} end end) end)
-    |> elem(1)
-  end
-
-
-  @doc """
-  Merges multiple airline purchase price counts maps and returns the results in
-  a map (aka "aggregate").
+  Merges a list of lists with airline purchase prices and returns the results
+  in a map (aka "aggregate").
+  Assumption: all prices are unique respective to the list that contains them.
   """
   def merge_airline_purchase_counts(prices) do
     merge_price_count_maps(%{}, prices)
@@ -103,9 +92,9 @@ defmodule Kaolcria do
   end
   defp merge_price_count_maps(result, [pcm | pcms]) do
     result = pcm
-    |> Enum.map_reduce(result, fn({price, count}, acc) ->
+    |> Enum.map_reduce(result, fn(price, acc) ->
       Map.get_and_update(acc, price, fn(v) ->
-        if v == nil do {nil,count} else {v,v+count} end end) end)
+        if v == nil do {nil,1} else {v,v+1} end end) end)
     |> elem(1)
     merge_price_count_maps(result, pcms)
   end
@@ -135,8 +124,7 @@ defmodule Kaolcria do
         |> Enum.map(fn path ->
           spawn_link fn ->
               case extract_airline_purchases(path) do
-                {:ok, prices} ->
-                  send me, {:ok, get_airline_purchase_counts(prices)}
+                {:ok, prices} -> send me, {:ok, prices}
                 {:error, ev} -> send me, {:error, ev, path}
               end
             end

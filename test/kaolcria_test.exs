@@ -1,38 +1,24 @@
 defmodule KaolcriaTest do
   use ExUnit.Case
 
-  test "get_airline_purchase_counts(), empty prices list" do
-    assert Kaolcria.get_airline_purchase_counts([]) == %{}
-  end
-
-
-  test "get_airline_purchase_counts(), only one kind of price in list" do
-    assert Kaolcria.get_airline_purchase_counts([101, 101, 101]) == %{101 => 3}
-  end
-
-
-  test "get_airline_purchase_counts(), mixed prices in list" do
-    assert Kaolcria.get_airline_purchase_counts(
-      [101, 101, 101, 1002, 1002, 10003]) == %{101 => 3, 1002 => 2, 10003 => 1}
-  end
-
-
   test "merge_airline_purchase_counts(), empty price count list" do
-    assert Kaolcria.merge_airline_purchase_counts([]) == %{}
+    input = []
+    expected = %{}
+    assert Kaolcria.merge_airline_purchase_counts(input) == expected
   end
 
 
   test "merge_airline_purchase_counts(), single price count list" do
-    input = %{101 => 3, 1002 => 2, 10003 => 1}
-    assert Kaolcria.merge_airline_purchase_counts([input]) == input
+    input = [[101, 1002, 10003]]
+    expected = %{101 => 1, 1002 => 1, 10003 => 1}
+    assert Kaolcria.merge_airline_purchase_counts(input) == expected
   end
 
 
   test "merge_airline_purchase_counts(), multiple/mixed price count lists" do
-    input = [%{}, %{101 => 3, 1002 => 2, 10003 => 1}, %{}, %{102 => 2},
-             %{101 => 1, 105 => 5}]
-    assert Kaolcria.merge_airline_purchase_counts(
-      input) == %{101 => 4, 102 => 2, 105 => 5, 1002 => 2, 10003 => 1}
+    input = [[], [101, 1002, 10003], [105], [102], [101, 105]]
+    expected = %{101 => 2, 102 => 1, 105 => 2, 1002 => 1, 10003 => 1}
+    assert Kaolcria.merge_airline_purchase_counts(input) == expected
   end
 
 
@@ -167,7 +153,7 @@ defmodule ExtractAirlinePurchasesTest do
     ]}
     """
   test "extract_airline_purchases(), 5x10k", context do
-    expected = {:ok, [10000, 10000, 10000, 10000, 10000]}
+    expected = {:ok, [10000]}
     assert Kaolcria.extract_airline_purchases(context[:fpath]) == expected
   end
 
@@ -198,7 +184,7 @@ defmodule ExtractAirlinePurchasesTest do
     ]}
     """
   test "extract_airline_purchases(), mixed bag", context do
-    expected = {:ok, [102, 1003, 1003, 10004, 10004]}
+    expected = {:ok, [102, 1003, 10004]}
     assert Kaolcria.extract_airline_purchases(context[:fpath]) == expected
   end
 
@@ -237,12 +223,35 @@ defmodule ProcessJsonFilesTest do
 
   @tag dirmode: 0o255
   @tag jfs: [
-    {"1.json", 0o600, """
+    {"2.json", 0o400, """
       {"purchases":[
-        {"type":"hotel","amount":460},
-        {"type":"drink","amount":6},
-        {"type":"airline","amount":150},
-        {"type":"car","amount":928759},
+        {"type":"airline","amount":10000},
+        {"type":"drink","amount":4}
+      ]}
+    """},
+    {"4.json", 0o400, """
+      {"purchases":[
+        {"type":"airline","amount":10000},
+        {"type":"airline","amount":10000},
+        {"type":"drink","amount":4}
+      ]}
+    """},
+    {"5.json", 0o400, """
+      {"purchases":[
+        {"type":"airline","amount":10000},
+        {"type":"drink","amount":4}
+      ]}
+    """},
+    {"6.json", 0o400, """
+      {"purchases":[
+        {"type":"airline","amount":10000},
+        {"type":"airline","amount":10000},
+        {"type":"drink","amount":4}
+      ]}
+    """},
+    {"7.json", 0o400, """
+      {"purchases":[
+        {"type":"airline","amount":10000},
         {"type":"drink","amount":4}
       ]}
     """},
@@ -250,9 +259,8 @@ defmodule ProcessJsonFilesTest do
       {"purchases":[
         {"type":"airline","amount":10000},
         {"type":"airline","amount":10000},
-        {"type":"airline","amount":10000},
-        {"type":"airline","amount":10000},
-        {"type":"airline","amount":10000},
+        {"type":"airline","amount":9000},
+        {"type":"airline","amount":9000},
         {"type":"pillow","amount":25}
       ]}
     """},
@@ -279,22 +287,59 @@ defmodule ProcessJsonFilesTest do
         {"type":"hotel","amount":460},
         {"type":"drink","amount":6},
         {"type":"airline","amount":150},
-        {"type":"airline","amount":150},
-        {"type":"airline","amount":150},
-        {"type":"airline","amount":150},
-        {"type":"airline","amount":150},
         {"type":"car","amount":928759},
-        {"type":"drink","amount":4}
+        {"type":"drink","amount":4},
+        {"type":"airline","amount":10000}
+      ]}
+    """},
+    {"2.json", 0o600, """
+      {"purchases":[
+        {"type":"airline","amount":150},
+        {"type":"airline","amount":10000}
+      ]}
+    """},
+    {"3.json", 0o600, """
+      {"purchases":[
+        {"type":"airline","amount":150}
+      ]}
+    """},
+    {"4.json", 0o600, """
+      {"purchases":[
+        {"type":"airline","amount":150},
+        {"type":"drink","amount":4},
+        {"type":"airline","amount":10000}
+      ]}
+    """},
+    {"5.json", 0o600, """
+      {"purchases":[
+        {"type":"airline","amount":9000}
+      ]}
+    """},
+    {"6.json", 0o600, """
+      {"purchases":[
+        {"type":"airline","amount":10000}
+      ]}
+    """},
+    {"7.json", 0o600, """
+      {"purchases":[
+        {"type":"airline","amount":9000}
+      ]}
+    """},
+    {"8.json", 0o600, """
+      {"purchases":[
+        {"type":"airline","amount":10000}
+      ]}
+    """},
+    {"9.json", 0o600, """
+      {"purchases":[
+        {"type":"airline","amount":9000}
       ]}
     """},
     {"15.json", 0o640, """
       {"purchases":[
         {"type":"airline","amount":10000},
         {"type":"airline","amount":150},
-        {"type":"airline","amount":10000},
-        {"type":"airline","amount":10000},
-        {"type":"airline","amount":10000},
-        {"type":"airline","amount":150},
+        {"type":"airline","amount":600},
         {"type":"airline","amount":10000},
         {"type":"pillow","amount":25}
       ]}
@@ -308,14 +353,13 @@ defmodule ProcessJsonFilesTest do
         {"type":"airline","amount":10000},
         {"type":"airline","amount":150},
         {"type":"airline","amount":9000},
-        {"type":"airline","amount":9000},
         {"type":"airline","amount":9000}
       ]}
     """}
     ]
   test "process_json_files(), all files readable", context do
     assert Kaolcria.process_json_files(
-      context[:tpath]) == %{150 => 8, 10000 => 7}
+      context[:tpath]) == %{150 => 6, 10000 => 7}
   end
 
 
@@ -332,11 +376,40 @@ defmodule ProcessJsonFilesTest do
         {"type":"drink","amount":4}
       ]}
     """},
-    {"15.json", 0o640, """
+    {"2.json", 0o400, """
+      {"purchases":[
+        {"type":"airline","amount":10000},
+        {"type":"drink","amount":4}
+      ]}
+    """},
+    {"4.json", 0o400, """
       {"purchases":[
         {"type":"airline","amount":10000},
         {"type":"airline","amount":10000},
+        {"type":"drink","amount":4}
+      ]}
+    """},
+    {"5.json", 0o400, """
+      {"purchases":[
         {"type":"airline","amount":10000},
+        {"type":"drink","amount":4}
+      ]}
+    """},
+    {"6.json", 0o400, """
+      {"purchases":[
+        {"type":"airline","amount":10000},
+        {"type":"airline","amount":10000},
+        {"type":"drink","amount":4}
+      ]}
+    """},
+    {"7.json", 0o400, """
+      {"purchases":[
+        {"type":"airline","amount":10000},
+        {"type":"drink","amount":4}
+      ]}
+    """},
+    {"15.json", 0o640, """
+      {"purchases":[
         {"type":"airline","amount":10000},
         {"type":"airline","amount":10000},
         {"type":"airline","amount":9000},
@@ -351,13 +424,12 @@ defmodule ProcessJsonFilesTest do
       {"purchases":[
         {"type":"airline","amount":9000},
         {"type":"airline","amount":9000},
-        {"type":"airline","amount":9000},
         {"type":"airline","amount":9000}
       ]}
     """}
     ]
   test "process_json_files(), 1.json not readable", context do
-    assert Kaolcria.process_json_files(context[:tpath]) == %{9000 => 6}
+    assert Kaolcria.process_json_files(context[:tpath]) == %{10000 => 6}
   end
 
 
