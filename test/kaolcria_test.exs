@@ -1,6 +1,27 @@
 defmodule KaolcriaTest do
   use ExUnit.Case
 
+  test "aaapp_average(), empty map with airline purchases prices" do
+    input = %{}
+    expected = 0
+    assert Kaolcria.aaapp_average(input) == expected
+  end
+
+
+  test "aaapp_average(), good map with airline purchases prices" do
+    input = %{201 => 6, 2002 => 12, 20003 => 17}
+    expected = 7402.0
+    assert Kaolcria.aaapp_average(input) == expected
+  end
+
+
+  test "aaapp_average(), contrived map with airline purchases prices" do
+    input = %{0 => 11, 1 => 22}
+    expected = 0.5
+    assert Kaolcria.aaapp_average(input) == expected
+  end
+
+
   test "merge_airline_purchase_counts(), empty price count list" do
     input = []
     expected = %{}
