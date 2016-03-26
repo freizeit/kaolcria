@@ -24,13 +24,13 @@ defmodule KaolcriaTest do
 
   test "merge_airline_purchase_counts(), single price count list" do
     input = %{101 => 3, 1002 => 2, 10003 => 1}
-    assert Kaolcria.merge_airline_purchase_counts([{:ok, input}]) == input
+    assert Kaolcria.merge_airline_purchase_counts([input]) == input
   end
 
 
   test "merge_airline_purchase_counts(), multiple/mixed price count lists" do
     input = [%{}, %{101 => 3, 1002 => 2, 10003 => 1}, %{}, %{102 => 2},
-             %{101 => 1, 105 => 5}] |> Enum.map(fn x -> {:ok, x} end)
+             %{101 => 1, 105 => 5}]
     assert Kaolcria.merge_airline_purchase_counts(
       input) == %{101 => 4, 102 => 2, 105 => 5, 1002 => 2, 10003 => 1}
   end
