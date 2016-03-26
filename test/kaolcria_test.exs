@@ -361,6 +361,48 @@ defmodule ProcessJsonFilesTest do
   end
 
 
+  @tag dirmode: 0o755
+  @tag jfs: [
+    {"1.json", 0o200, """
+      {"purchases":[
+        {"type":"airline","amount":10000},
+        {"type":"airline","amount":10000},
+        {"type":"hotel","amount":460},
+        {"type":"drink","amount":6},
+        {"type":"airline","amount":150},
+        {"type":"car","amount":928759},
+        {"type":"drink","amount":4}
+      ]}
+    """},
+    {"15.json", 0o640, """
+      {"purchases":[
+        {"type":"airline","amount":10000},
+        {"type":"airline","amount":10000},
+        {"type":"airline","amount":10000},
+        {"type":"airline","amount":10000},
+        {"type":"airline","amount":10000},
+        {"type":"airline","amount":9000},
+        {"type":"airline","amount":9000},
+        {"type":"pillow","amount":25}
+      ]}
+    """},
+    {"16.json", 0o644, """
+      {"purchases":[]}
+    """},
+    {"17.json", 0o244, """
+      {"purchases":[
+        {"type":"airline","amount":9000},
+        {"type":"airline","amount":9000},
+        {"type":"airline","amount":9000},
+        {"type":"airline","amount":9000}
+      ]}
+    """}
+    ]
+  test "process_json_files(), 1.json and 17.json not readable", context do
+    assert Kaolcria.process_json_files(context[:tpath]) == %{}
+  end
+
+
   defp write_file(path, content) do
     {:ok, file} = File.open path, [:write]
     IO.binwrite file, content
