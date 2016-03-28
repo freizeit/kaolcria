@@ -154,10 +154,10 @@ defmodule Kaolcria do
   purchase prices.
   """
   def aaapp_average(maaapp) when maaapp != %{} do
-    sum = maaapp
-    |> Map.keys
-    |> Enum.reduce(0, fn({_pt, pv}, acc) -> pv + acc end)
-    sum/Enum.count(maaapp)
+    keys = Map.keys(maaapp)
+    |> Enum.filter(fn({pt, _pv}) -> pt == "airline" end)
+    sum = keys |> Enum.reduce(0, fn({_pt, pv}, acc) -> pv + acc end)
+    sum/Enum.count(keys)
   end
   def aaapp_average(_), do: 0
 
@@ -167,7 +167,9 @@ defmodule Kaolcria do
   purchase prices.
   """
   def aaapp_median(maaapp) when maaapp != %{} do
-    keys = Map.keys(maaapp) |> Enum.sort
+    keys = Map.keys(maaapp)
+    |> Enum.filter(fn({pt, _pv}) -> pt == "airline" end)
+    |> Enum.sort
     num_keys = Enum.count(keys)
     if rem(num_keys, 2) == 1 do
       # odd number of keys

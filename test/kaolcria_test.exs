@@ -8,7 +8,7 @@ defmodule KaolcriaTest do
   end
 
 
-  test "aaapp_median(), good map with airline purchases prices" do
+  test "aaapp_median(), odd number of airline purchases prices" do
     input = %{
       {"airline", 201} => 6, {"airline", 2002} => 12, {"airline", 20003} => 17}
     expected = 2002
@@ -16,9 +16,10 @@ defmodule KaolcriaTest do
   end
 
 
-  test "aaapp_median(), contrived map with airline purchases prices" do
+  test "aaapp_median(), mixed prices, even number of airline records" do
     input = %{
-      {"airline", 0} => 11, {"airline", 1} => 22, {"airline", 2} => 33,
+      {"airline", 0} => 11, {"hotel", 1} => 22, {"airline", 2} => 33,
+      {"bag", 0} => 11, {"airline", 1} => 22, {"food", 2} => 33,
       {"airline", 3} => 44}
     expected = 1.5
     assert Kaolcria.aaapp_median(input) == expected
@@ -32,9 +33,11 @@ defmodule KaolcriaTest do
   end
 
 
-  test "aaapp_average(), good map with airline purchases prices" do
+  test "aaapp_average(), good map with mixed purchases prices" do
     input = %{
-      {"airline", 201} => 6, {"airline", 2002} => 12, {"airline", 20003} => 17}
+      {"airline", 201} => 6, {"beans", 2002} => 12, {"airline", 20003} => 17,
+      {"jelly", 201} => 6, {"airline", 2002} => 12, {"toast", 20003} => 17}
+
     expected = 7402.0
     assert Kaolcria.aaapp_average(input) == expected
   end
