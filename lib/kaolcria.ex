@@ -105,8 +105,11 @@ defmodule Kaolcria do
   Filters the given map with airline price counts so that only prices with
   counts of 6 or above remain (aka "anonymize").
   """
-  def anonymize_purchases(pcm) do
-    pcm |> Enum.filter(fn({_, count}) -> count >= 6 end) |> Enum.into(%{})
+  def anonymize_purchases(pcm, anonymize \\ true) do
+    case anonymize do
+      true -> pcm |> Enum.filter(fn({_, count}) -> count >= 6 end) |> Enum.into(%{})
+      false -> pcm
+    end
   end
 
 
@@ -115,7 +118,7 @@ defmodule Kaolcria do
   the given directory.
   Returns an aggregated and anonymized map with airline price counts.
   """
-  def process_json_files(path) do
+  def process_json_files(path, anonymize \\ true) do
     case list_json_files(path) do
       {:ok, files} ->
         me = self
@@ -140,7 +143,7 @@ defmodule Kaolcria do
         ### aggregate
         |> merge_purchases
         ### anonymize
-        |> anonymize_purchases
+        |> anonymize_purchases(anonymize)
       {:error, err} ->
         IO.puts(:stderr, "Error: #{err} :: #{path}")
         %{}

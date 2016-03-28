@@ -113,6 +113,17 @@ defmodule KaolcriaTest do
   end
 
 
+  test "anonymize_purchases(), with `anonymize` flag off" do
+    input = %{
+      {"airline", 150} => 1,
+      {"car", 928759} => 2,
+      {"drink", 4} => 3,
+      {"drink", 6} => 4,
+      {"hotel", 460} => 5}
+    assert Kaolcria.anonymize_purchases(input, false) == input
+  end
+
+
   test "anonymize_purchases(), mixed bag of counts" do
     input = %{
       {"airline", 151} => 7,
@@ -548,6 +559,52 @@ defmodule ProcessJsonFilesTest do
     ]
   test "process_json_files(), 1.json and 17.json not readable", context do
     assert Kaolcria.process_json_files(context[:tpath]) == %{}
+  end
+
+
+  @tag dirmode: 0o755
+  @tag jfs: [
+    {"1.json", 0o600, """
+      {"purchases":[
+        {"type":"airline","amount":10000},
+        {"type":"airline","amount":10000},
+        {"type":"hotel","amount":460},
+        {"type":"drink","amount":6},
+        {"type":"airline","amount":150},
+        {"type":"car","amount":928759},
+        {"type":"drink","amount":4}
+      ]}
+    """},
+    {"15.json", 0o640, """
+      {"purchases":[
+        {"type":"airline","amount":10000},
+        {"type":"airline","amount":10000},
+        {"type":"airline","amount":10000},
+        {"type":"airline","amount":10000},
+        {"type":"airline","amount":10000},
+        {"type":"airline","amount":9000},
+        {"type":"airline","amount":9000},
+        {"type":"pillow","amount":25}
+      ]}
+    """},
+    {"16.json", 0o644, """
+      {"purchases":[]}
+    """},
+    {"17.json", 0o244, """
+      {"purchases":[
+        {"type":"airline","amount":9000},
+        {"type":"airline","amount":9000},
+        {"type":"airline","amount":9000},
+        {"type":"airline","amount":9000}
+      ]}
+    """}
+    ]
+  test "process_json_files(), `anonymize` flag off", context do
+    expected = %{
+      {"airline", 150} => 1, {"airline", 9000} => 1, {"airline", 10000} => 2,
+      {"car", 928759} => 1, {"drink", 4} => 1, {"drink", 6} => 1,
+      {"hotel", 460} => 1, {"pillow", 25} => 1}
+    assert Kaolcria.process_json_files(context[:tpath], false) == expected
   end
 
 
