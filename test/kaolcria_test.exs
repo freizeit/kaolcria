@@ -44,7 +44,7 @@ defmodule KaolcriaTest do
 
 
   test "aaapp_average(), contrived map with airline purchases prices" do
-    input = %{{"airline", 0} => 11, {"airline", 1} => 22}
+    input = %{{"airline", 0} => 11, {"bread", 5} => 11, {"airline", 1} => 22}
     expected = 0.5
     assert Kaolcria.aaapp_average(input) == expected
   end
