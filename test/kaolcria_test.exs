@@ -221,44 +221,65 @@ defmodule ProcessJsonFilesTest do
 
   @tag dirmode: 0o255
   @tag jfs: [
-    {"2.json", 0o400, """
+    {"1.json", 0o600, """
       {"purchases":[
-        {"type":"airline","amount":10000},
-        {"type":"drink","amount":4}
+        {"type":"hotel","amount":460},
+        {"type":"drink","amount":6},
+        {"type":"airline","amount":150},
+        {"type":"car","amount":928759},
+        {"type":"drink","amount":4},
+        {"type":"airline","amount":10000}
       ]}
     """},
-    {"4.json", 0o400, """
+    {"2.json", 0o600, """
       {"purchases":[
-        {"type":"airline","amount":10000},
-        {"type":"airline","amount":10000},
-        {"type":"drink","amount":4}
+        {"type":"airline","amount":150},
+        {"type":"airline","amount":10000}
       ]}
     """},
-    {"5.json", 0o400, """
+    {"3.json", 0o600, """
       {"purchases":[
-        {"type":"airline","amount":10000},
-        {"type":"drink","amount":4}
+        {"type":"airline","amount":150}
       ]}
     """},
-    {"6.json", 0o400, """
+    {"4.json", 0o600, """
       {"purchases":[
-        {"type":"airline","amount":10000},
-        {"type":"airline","amount":10000},
-        {"type":"drink","amount":4}
+        {"type":"airline","amount":150},
+        {"type":"drink","amount":4},
+        {"type":"airline","amount":10000}
       ]}
     """},
-    {"7.json", 0o400, """
+    {"5.json", 0o600, """
       {"purchases":[
-        {"type":"airline","amount":10000},
-        {"type":"drink","amount":4}
+        {"type":"airline","amount":9000}
+      ]}
+    """},
+    {"6.json", 0o600, """
+      {"purchases":[
+        {"type":"airline","amount":10000}
+      ]}
+    """},
+    {"7.json", 0o600, """
+      {"purchases":[
+        {"type":"airline","amount":9000}
+      ]}
+    """},
+    {"8.json", 0o600, """
+      {"purchases":[
+        {"type":"airline","amount":10000}
+      ]}
+    """},
+    {"9.json", 0o600, """
+      {"purchases":[
+        {"type":"airline","amount":9000}
       ]}
     """},
     {"15.json", 0o640, """
       {"purchases":[
         {"type":"airline","amount":10000},
+        {"type":"airline","amount":150},
+        {"type":"airline","amount":600},
         {"type":"airline","amount":10000},
-        {"type":"airline","amount":9000},
-        {"type":"airline","amount":9000},
         {"type":"pillow","amount":25}
       ]}
     """},
@@ -267,7 +288,9 @@ defmodule ProcessJsonFilesTest do
     """},
     {"17.json", 0o644, """
       {"purchases":[
-        {"type":"airline","amount":9000},
+        {"type":"airline","amount":10000},
+        {"type":"airline","amount":10000},
+        {"type":"airline","amount":150},
         {"type":"airline","amount":9000},
         {"type":"airline","amount":9000}
       ]}
