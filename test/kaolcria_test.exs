@@ -43,41 +43,36 @@ defmodule KaolcriaTest do
   end
 
 
-  test "merge_airline_purchase_counts(), empty price count list" do
-    input = []
-    expected = %{}
-    assert Kaolcria.merge_airline_purchase_counts(input) == expected
+  test "anonymize_purchase_counts(), empty price count list" do
+    assert Kaolcria.anonymize_purchase_counts(%{}) == %{}
+  end
+
+  test "anonymize_purchase_counts(), all counts 6+" do
+    input = %{
+      {"airline", 150} => 6,
+      {"car", 928759} => 7,
+      {"drink", 4} => 8,
+      {"drink", 6} => 9,
+      {"hotel", 460} => 10}
+    assert Kaolcria.anonymize_purchase_counts(input) == input
   end
 
 
-  test "merge_airline_purchase_counts(), single price count list" do
-    input = [[101, 1002, 10003]]
-    expected = %{101 => 1, 1002 => 1, 10003 => 1}
-    assert Kaolcria.merge_airline_purchase_counts(input) == expected
-  end
-
-
-  test "merge_airline_purchase_counts(), multiple/mixed price count lists" do
-    input = [[], [101, 1002, 10003], [105], [102], [101, 105]]
-    expected = %{101 => 2, 102 => 1, 105 => 2, 1002 => 1, 10003 => 1}
-    assert Kaolcria.merge_airline_purchase_counts(input) == expected
-  end
-
-
-  test "anonymize_airline_purchase_counts(), empty price count list" do
-    assert Kaolcria.anonymize_airline_purchase_counts(%{}) == %{}
-  end
-
-  test "anonymize_airline_purchase_counts(), all counts 6+" do
-    input = %{201 => 6, 2002 => 12, 20003 => 17}
-    assert Kaolcria.anonymize_airline_purchase_counts(input) == input
-  end
-
-
-  test "anonymize_airline_purchase_counts(), mixed bag of counts" do
-    input = %{201 => 6, 2002 => 0, 20003 => 7, 1 => 5, 0 => -1}
-    expected = %{201 => 6, 20003 => 7}
-    assert Kaolcria.anonymize_airline_purchase_counts(input) == expected
+  test "anonymize_purchase_counts(), mixed bag of counts" do
+    input = %{
+      {"airline", 151} => 7,
+      {"airline", 1004} => 2,
+      {"airline", 10005} => 1,
+      {"car", 928751} => 9,
+      {"drink", 5} => 3,
+      {"drink", 7} => 1,
+      {"hotel", 461} => 10,
+      {"pillow", 26} => 2}
+    expected = %{
+      {"airline", 151} => 7,
+      {"car", 928751} => 9,
+      {"hotel", 461} => 10}
+    assert Kaolcria.anonymize_purchase_counts(input) == expected
   end
 end
 

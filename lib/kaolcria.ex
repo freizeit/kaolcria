@@ -122,32 +122,10 @@ defmodule Kaolcria do
 
 
   @doc """
-  Merges a list of lists with airline purchase prices and returns the results
-  in a map (aka "aggregate").
-  Assumption: all prices are unique respective to the list that contains them.
-  """
-  def merge_airline_purchase_counts(prices) do
-    merge_price_count_maps(%{}, prices)
-  end
-
-  defp merge_price_count_maps(result, []) do
-    result
-  end
-  defp merge_price_count_maps(result, [pcm | pcms]) do
-    result = pcm
-    |> Enum.map_reduce(result, fn(price, acc) ->
-      Map.get_and_update(acc, price, fn(v) ->
-        if v == nil do {nil,1} else {v,v+1} end end) end)
-    |> elem(1)
-    merge_price_count_maps(result, pcms)
-  end
-
-
-  @doc """
   Filters the given map with airline price counts so that only prices with
   counts of 6 or above remain (aka "anonymize").
   """
-  def anonymize_airline_purchase_counts(pcm) do
+  def anonymize_purchase_counts(pcm) do
     pcm |> Enum.filter(fn({_, count}) -> count >= 6 end) |> Enum.into(%{})
   end
 
@@ -180,9 +158,9 @@ defmodule Kaolcria do
             end
           end)
         ### aggregate
-        |> merge_airline_purchase_counts
+        |> merge_purchase_counts
         ### anonymize
-        |> anonymize_airline_purchase_counts
+        |> anonymize_purchase_counts
       {:error, err} ->
         IO.puts(:stderr, "Error: #{err} :: #{path}")
         %{}
