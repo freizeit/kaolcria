@@ -156,7 +156,7 @@ defmodule Kaolcria do
   def aaapp_average(maaapp) when maaapp != %{} do
     sum = maaapp
     |> Map.keys
-    |> Enum.reduce(0, fn(x, acc) -> x + acc end)
+    |> Enum.reduce(0, fn({_pt, pv}, acc) -> pv + acc end)
     sum/Enum.count(maaapp)
   end
   def aaapp_average(_), do: 0
@@ -171,10 +171,10 @@ defmodule Kaolcria do
     num_keys = Enum.count(keys)
     if rem(num_keys, 2) == 1 do
       # odd number of keys
-      Enum.at(keys, div(num_keys, 2))
+      Enum.at(keys, div(num_keys, 2)) |> elem(1)
     else
-      m1 = Enum.at(keys, div(num_keys, 2) - 1)
-      m2 = Enum.at(keys, div(num_keys, 2))
+      {_, m1} = Enum.at(keys, div(num_keys, 2) - 1)
+      {_, m2} = Enum.at(keys, div(num_keys, 2))
       (m1 + m2)/2
     end
   end

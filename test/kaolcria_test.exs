@@ -9,14 +9,17 @@ defmodule KaolcriaTest do
 
 
   test "aaapp_median(), good map with airline purchases prices" do
-    input = %{201 => 6, 2002 => 12, 20003 => 17}
+    input = %{
+      {"airline", 201} => 6, {"airline", 2002} => 12, {"airline", 20003} => 17}
     expected = 2002
     assert Kaolcria.aaapp_median(input) == expected
   end
 
 
   test "aaapp_median(), contrived map with airline purchases prices" do
-    input = %{0 => 11, 1 => 22, 2 => 33, 3 => 44}
+    input = %{
+      {"airline", 0} => 11, {"airline", 1} => 22, {"airline", 2} => 33,
+      {"airline", 3} => 44}
     expected = 1.5
     assert Kaolcria.aaapp_median(input) == expected
   end
@@ -30,14 +33,15 @@ defmodule KaolcriaTest do
 
 
   test "aaapp_average(), good map with airline purchases prices" do
-    input = %{201 => 6, 2002 => 12, 20003 => 17}
+    input = %{
+      {"airline", 201} => 6, {"airline", 2002} => 12, {"airline", 20003} => 17}
     expected = 7402.0
     assert Kaolcria.aaapp_average(input) == expected
   end
 
 
   test "aaapp_average(), contrived map with airline purchases prices" do
-    input = %{0 => 11, 1 => 22}
+    input = %{{"airline", 0} => 11, {"airline", 1} => 22}
     expected = 0.5
     assert Kaolcria.aaapp_average(input) == expected
   end
