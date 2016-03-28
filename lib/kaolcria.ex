@@ -202,4 +202,29 @@ defmodule Kaolcria do
     |> elem(1)
   end
   def p_max(_pps, _ptype), do: 0
+
+
+  def main(argv) do
+    { parse, _, _ } = OptionParser.parse(
+      argv, strict: [
+        help: :boolean, dont_anonymize: :boolean, path: :string, tag: :string])
+
+    if parse[:help] do
+      print_help()
+      System.halt(0)
+    end
+  end
+
+
+  defp print_help() do
+    help_text = """
+      Process json files with purchase data
+
+        --help  print this help
+        --open  do not anonymize (only useful for testing) [default: false]
+        --path  path to the directory with the json data files [default: "data"]
+        --tag   purchase tags to process [default: "airline"]
+      """
+    IO.puts help_text
+  end
 end

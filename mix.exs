@@ -5,6 +5,7 @@ defmodule Aircloak.Mixfile do
     [app: :aircloak,
      version: "0.0.1",
      elixir: "~> 1.2.3",
+     escript: [main_module: Kaolcria],
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      deps: deps]
@@ -27,7 +28,6 @@ defmodule Aircloak.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [{:poison, "~> 2.0"},
-     {:amnesia, github: "meh/amnesia", tag: :master}]
+    [{:poison, "~> 2.0"}]
   end
 end
