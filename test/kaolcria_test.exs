@@ -74,6 +74,30 @@ defmodule KaolcriaTest do
   end
 
 
+  test "p_max(), empty map with airline purchases prices" do
+    input = %{}
+    expected = 0
+    assert Kaolcria.p_max(input) == expected
+  end
+
+
+  test "p_max(), good map with mixed purchases prices" do
+    input = %{
+      {"airline", 201} => 6, {"beans", 2002} => 12, {"airline", 20003} => 17,
+      {"jelly", 201} => 6, {"airline", 2002} => 12, {"toast", 20003} => 17}
+
+    expected = 20003
+    assert Kaolcria.p_max(input) == expected
+  end
+
+
+  test "p_max(), contrived map with airline purchases prices" do
+    input = %{{"airline", 0.2} => 11, {"bread", 5} => 1, {"airline", 0.1} => 9}
+    expected = 0.2
+    assert Kaolcria.p_max(input) == expected
+  end
+
+
   test "anonymize_purchases(), empty price count list" do
     assert Kaolcria.anonymize_purchases(%{}) == %{}
   end

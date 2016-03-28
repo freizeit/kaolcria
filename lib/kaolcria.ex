@@ -192,4 +192,14 @@ defmodule Kaolcria do
     |> elem(1)
   end
   def p_min(_pps, _ptype), do: 0
+
+
+  def p_max(pps, ptype \\ "airline")
+  def p_max(pps, ptype) when pps != %{} do
+    Map.keys(pps)
+    |> Enum.filter(fn({pt, _pv}) -> pt == ptype end)
+    |> Enum.max
+    |> elem(1)
+  end
+  def p_max(_pps, _ptype), do: 0
 end
