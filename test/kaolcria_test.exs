@@ -82,6 +82,65 @@ defmodule KaolcriaTest do
 end
 
 
+defmodule MergePurchaseCountsTest do
+  use ExUnit.Case
+
+  test "merge_purchase_counts(), empty price count list" do
+    input = []
+    expected = %{}
+    assert Kaolcria.merge_purchase_counts(input) == expected
+  end
+
+
+  test "merge_purchase_counts(), single price count list" do
+    input = [[
+      {"airline", 150},
+      {"car", 928759},
+      {"drink", 4},
+      {"drink", 6},
+      {"hotel", 460}]]
+    expected = %{
+      {"airline", 150} => 1,
+      {"car", 928759} => 1,
+      {"drink", 4} => 1,
+      {"drink", 6} => 1,
+      {"hotel", 460} => 1}
+    assert Kaolcria.merge_purchase_counts(input) == expected
+  end
+
+
+  test "merge_purchase_counts(), multiple/mixed price count lists" do
+    input = [
+      [],
+      [{"airline", 151},
+       {"car", 928751},
+       {"drink", 5},
+       {"drink", 7},
+       {"hotel", 461}],
+      [{"airline", 151},
+       {"drink", 5},
+       {"airline", 1004},
+       {"airline", 10005},
+       {"pillow", 26}],
+      [{"airline", 151},
+       {"drink", 5},
+       {"airline", 1004},
+       {"pillow", 26}]]
+    expected = %{
+      {"airline", 151} => 3,
+      {"airline", 1004} => 2,
+      {"airline", 10005} => 1,
+      {"car", 928751} => 1,
+      {"drink", 5} => 3,
+      {"drink", 7} => 1,
+      {"hotel", 461} => 1,
+      {"pillow", 26} => 2}
+
+    assert Kaolcria.merge_purchase_counts(input) == expected
+  end
+end
+
+
 defmodule ListJsonFilesTest do
   use ExUnit.Case
 

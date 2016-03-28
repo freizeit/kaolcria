@@ -98,6 +98,16 @@ defmodule Kaolcria do
 
 
   @doc """
+  Merges a list of lists with purchase prices and returns the results
+  in a map (aka "aggregate").
+  Assumption: all item/price tuples are unique with respect to the list that
+  contains them.
+  """
+  def merge_purchase_counts(prices) do
+  end
+
+
+  @doc """
   Merges a list of lists with airline purchase prices and returns the results
   in a map (aka "aggregate").
   Assumption: all prices are unique respective to the list that contains them.
