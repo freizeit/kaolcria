@@ -79,6 +79,25 @@ defmodule Kaolcria do
 
 
   @doc """
+  Returns a sorted list (possibly empty) of 2-tuples where the first element is
+  the purchase type and the second element is the purchase price respectively.
+  All the prices in the returned list will be unique.
+  """
+  def extract_purchases(path) do
+    case File.read(path) do
+      {:error, _} = err -> err
+      {:ok, body} -> {:ok,
+        body
+        |> Poison.Parser.parse!
+        |> Access.get("purchases")
+        |> Enum.map(fn d -> {d["type"], d["amount"]} end)
+        |> Enum.sort
+        |> Enum.dedup}
+    end
+  end
+
+
+  @doc """
   Merges a list of lists with airline purchase prices and returns the results
   in a map (aka "aggregate").
   Assumption: all prices are unique respective to the list that contains them.

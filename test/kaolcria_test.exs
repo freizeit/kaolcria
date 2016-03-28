@@ -523,3 +523,124 @@ defmodule ProcessJsonFilesTest do
     File.close file
   end
 end
+
+
+defmodule ExtractPurchasesTest do
+  use ExUnit.Case
+
+  setup context do
+    {fpath, 0} = System.cmd("mktemp", ["acl.XXXXX.json"])
+    fpath = String.rstrip(fpath)
+    write_file(fpath, context[:content])
+    if context[:filemode] != nil do
+      File.chmod!(fpath, context[:filemode])
+    end
+
+    on_exit fn ->
+      File.chmod!(fpath, 0o644)
+      System.cmd("rm", ["-f", fpath])
+    end
+
+    {:ok, fpath: fpath}
+  end
+
+
+  @tag filemode: 0o000
+  @tag content: """
+    {"purchases":[
+      {"type":"hotel","amount":460},
+      {"type":"drink","amount":6},
+      {"type":"airline","amount":150},
+      {"type":"car","amount":928759},
+      {"type":"drink","amount":4}
+    ]}
+    """
+  test "extract_purchases(), file not readable", context do
+    assert Kaolcria.extract_purchases(context[:fpath]) == {:error, :eacces}
+  end
+
+
+  @tag content: """
+    {"purchases":[
+      {"type":"hotel","amount":460},
+      {"type":"drink","amount":6},
+      {"type":"airline","amount":150},
+      {"type":"car","amount":928759},
+      {"type":"drink","amount":4}
+    ]}
+    """
+  test "extract_purchases(), single entry", context do
+    expected = {:ok, [
+      {"airline", 150},
+      {"car", 928759},
+      {"drink", 4},
+      {"drink", 6},
+      {"hotel", 460}]}
+    assert Kaolcria.extract_purchases(context[:fpath]) == expected
+  end
+
+
+  @tag content: """
+    {"purchases":[
+      {"type":"airline","amount":10000},
+      {"type":"airline","amount":10000},
+      {"type":"airline","amount":10000},
+      {"type":"airline","amount":10000},
+      {"type":"airline","amount":10000},
+      {"type":"pillow","amount":25}
+    ]}
+    """
+  test "extract_purchases(), 5x10k", context do
+    expected = {:ok, [
+      {"airline", 10000},
+      {"pillow", 25}]}
+    assert Kaolcria.extract_purchases(context[:fpath]) == expected
+  end
+
+
+  @tag content: """
+    {"purchases":[
+      {"type":"hotel","amount":460},
+      {"type":"drink","amount":6},
+      {"type":"phoneline","amount":150},
+      {"type":"car","amount":928759},
+      {"type":"drink","amount":4}
+    ]}
+    """
+  test "extract_purchases(), no airline purchases", context do
+    expected = {:ok, [
+      {"car", 928759},
+      {"drink", 4},
+      {"drink", 6},
+      {"hotel", 460},
+      {"phoneline", 150}]}
+    assert Kaolcria.extract_purchases(context[:fpath]) == expected
+  end
+
+
+  @tag content: """
+    {"purchases":[
+      {"type":"airline","amount":10004},
+      {"type":"airline","amount":1003},
+      {"type":"airline","amount":102},
+      {"type":"airline","amount":1003},
+      {"type":"airline","amount":10004},
+      {"type":"pillow","amount":25}
+    ]}
+    """
+  test "extract_airline_purchases(), mixed bag", context do
+    expected = {:ok, [
+      {"airline", 102},
+      {"airline", 1003},
+      {"airline", 10004},
+      {"pillow", 25}]}
+    assert Kaolcria.extract_purchases(context[:fpath]) == expected
+  end
+
+
+  defp write_file(path, content) do
+    {:ok, file} = File.open path, [:write]
+    IO.binwrite file, content
+    File.close file
+  end
+end
