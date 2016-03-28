@@ -188,111 +188,6 @@ defmodule ListJsonFilesTest do
 end
 
 
-defmodule ExtractAirlinePurchasesTest do
-  use ExUnit.Case
-
-  setup context do
-    {fpath, 0} = System.cmd("mktemp", ["acl.XXXXX.json"])
-    fpath = String.rstrip(fpath)
-    write_file(fpath, context[:content])
-    if context[:filemode] != nil do
-      File.chmod!(fpath, context[:filemode])
-    end
-
-    on_exit fn ->
-      File.chmod!(fpath, 0o644)
-      System.cmd("rm", ["-f", fpath])
-    end
-
-    {:ok, fpath: fpath}
-  end
-
-
-  @tag filemode: 0o000
-  @tag content: """
-    {"purchases":[
-      {"type":"hotel","amount":460},
-      {"type":"drink","amount":6},
-      {"type":"airline","amount":150},
-      {"type":"car","amount":928759},
-      {"type":"drink","amount":4}
-    ]}
-    """
-  test "extract_airline_purchases(), file not readable", context do
-    assert Kaolcria.extract_airline_purchases(context[:fpath]) == {:error, :eacces}
-  end
-
-
-  @tag content: """
-    {"purchases":[
-      {"type":"hotel","amount":460},
-      {"type":"drink","amount":6},
-      {"type":"airline","amount":150},
-      {"type":"car","amount":928759},
-      {"type":"drink","amount":4}
-    ]}
-    """
-  test "extract_airline_purchases(), single entry", context do
-    expected = {:ok, [150]}
-    assert Kaolcria.extract_airline_purchases(context[:fpath]) == expected
-  end
-
-
-  @tag content: """
-    {"purchases":[
-      {"type":"airline","amount":10000},
-      {"type":"airline","amount":10000},
-      {"type":"airline","amount":10000},
-      {"type":"airline","amount":10000},
-      {"type":"airline","amount":10000},
-      {"type":"pillow","amount":25}
-    ]}
-    """
-  test "extract_airline_purchases(), 5x10k", context do
-    expected = {:ok, [10000]}
-    assert Kaolcria.extract_airline_purchases(context[:fpath]) == expected
-  end
-
-
-  @tag content: """
-    {"purchases":[
-      {"type":"hotel","amount":460},
-      {"type":"drink","amount":6},
-      {"type":"phoneline","amount":150},
-      {"type":"car","amount":928759},
-      {"type":"drink","amount":4}
-    ]}
-    """
-  test "extract_airline_purchases(), no airline purchases", context do
-    expected = {:ok, []}
-    assert Kaolcria.extract_airline_purchases(context[:fpath]) == expected
-  end
-
-
-  @tag content: """
-    {"purchases":[
-      {"type":"airline","amount":10004},
-      {"type":"airline","amount":1003},
-      {"type":"airline","amount":102},
-      {"type":"airline","amount":1003},
-      {"type":"airline","amount":10004},
-      {"type":"pillow","amount":25}
-    ]}
-    """
-  test "extract_airline_purchases(), mixed bag", context do
-    expected = {:ok, [102, 1003, 10004]}
-    assert Kaolcria.extract_airline_purchases(context[:fpath]) == expected
-  end
-
-
-  defp write_file(path, content) do
-    {:ok, file} = File.open path, [:write]
-    IO.binwrite file, content
-    File.close file
-  end
-end
-
-
 defmodule ProcessJsonFilesTest do
   use ExUnit.Case
 
@@ -455,7 +350,7 @@ defmodule ProcessJsonFilesTest do
     ]
   test "process_json_files(), all files readable", context do
     assert Kaolcria.process_json_files(
-      context[:tpath]) == %{150 => 6, 10000 => 7}
+      context[:tpath]) == %{{"airline", 150} => 6, {"airline", 10000} => 7}
   end
 
 
@@ -525,7 +420,7 @@ defmodule ProcessJsonFilesTest do
     """}
     ]
   test "process_json_files(), 1.json not readable", context do
-    assert Kaolcria.process_json_files(context[:tpath]) == %{10000 => 6}
+    assert Kaolcria.process_json_files(context[:tpath]) == %{{"airline", 10000} => 6}
   end
 
 

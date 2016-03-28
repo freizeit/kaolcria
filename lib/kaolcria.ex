@@ -60,25 +60,6 @@ defmodule Kaolcria do
 
 
   @doc """
-  Returns a sorted list (possibly empty) with the airline purchase prices
-  for the given `path`. All the prices in the returned list will be unique.
-  """
-  def extract_airline_purchases(path) do
-    case File.read(path) do
-      {:error, _} = err -> err
-      {:ok, body} -> {:ok,
-        body
-        |> Poison.Parser.parse!
-        |> Access.get("purchases")
-        |> Enum.filter(fn d -> d["type"] == "airline" end)
-        |> Enum.map(fn d -> d["amount"] end)
-        |> Enum.sort
-        |> Enum.dedup}
-    end
-  end
-
-
-  @doc """
   Returns a sorted list (possibly empty) of 2-tuples where the first element is
   the purchase type and the second element is the purchase price respectively.
   All the prices in the returned list will be unique.
@@ -144,7 +125,7 @@ defmodule Kaolcria do
         files
         |> Enum.map(fn path ->
           spawn_link fn ->
-              case extract_airline_purchases(path) do
+              case extract_purchases(path) do
                 {:ok, prices} -> send me, {:ok, prices}
                 {:error, ev} -> send me, {:error, ev, path}
               end
