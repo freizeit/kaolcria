@@ -149,25 +149,27 @@ defmodule Kaolcria do
 
 
   @doc """
-  Return the average of a map with aggregated and anonymized airline
+  Return the average of a map with aggregated and anonymized
   purchase prices.
   """
-  def aaapp_average(maaapp) when maaapp != %{} do
-    keys = Map.keys(maaapp)
-    |> Enum.filter(fn({pt, _pv}) -> pt == "airline" end)
+  def p_average(pps, ptype \\ "airline")
+  def p_average(pps, ptype) when pps != %{} do
+    keys = Map.keys(pps)
+    |> Enum.filter(fn({pt, _pv}) -> pt == ptype end)
     sum = keys |> Enum.reduce(0, fn({_pt, pv}, acc) -> pv + acc end)
     sum/Enum.count(keys)
   end
-  def aaapp_average(_), do: 0
+  def p_average(_pps, _ptype), do: 0
 
 
   @doc """
-  Return the median of a map with aggregated and anonymized airline
+  Return the median of a map with aggregated and anonymized
   purchase prices.
   """
-  def aaapp_median(maaapp) when maaapp != %{} do
-    keys = Map.keys(maaapp)
-    |> Enum.filter(fn({pt, _pv}) -> pt == "airline" end)
+  def p_median(pps, ptype \\ "airline")
+  def p_median(pps, ptype) when pps != %{} do
+    keys = Map.keys(pps)
+    |> Enum.filter(fn({pt, _pv}) -> pt == ptype end)
     |> Enum.sort
     num_keys = Enum.count(keys)
     if rem(num_keys, 2) == 1 do
@@ -179,5 +181,15 @@ defmodule Kaolcria do
       (m1 + m2)/2
     end
   end
-  def aaapp_median(_), do: 0
+  def p_median(_pps, _ptype), do: 0
+
+
+  def p_min(pps, ptype \\ "airline")
+  def p_min(pps, ptype) when pps != %{} do
+    Map.keys(pps)
+    |> Enum.filter(fn({pt, _pv}) -> pt == ptype end)
+    |> Enum.min
+    |> elem(1)
+  end
+  def p_min(_pps, _ptype), do: 0
 end

@@ -1,52 +1,76 @@
 defmodule KaolcriaTest do
   use ExUnit.Case
 
-  test "aaapp_median(), empty map with airline purchases prices" do
+  test "p_median(), empty map with airline purchases prices" do
     input = %{}
     expected = 0
-    assert Kaolcria.aaapp_median(input) == expected
+    assert Kaolcria.p_median(input) == expected
   end
 
 
-  test "aaapp_median(), odd number of airline purchases prices" do
+  test "p_median(), odd number of airline purchases prices" do
     input = %{
       {"airline", 201} => 6, {"airline", 2002} => 12, {"airline", 20003} => 17}
     expected = 2002
-    assert Kaolcria.aaapp_median(input) == expected
+    assert Kaolcria.p_median(input) == expected
   end
 
 
-  test "aaapp_median(), mixed prices, even number of airline records" do
+  test "p_median(), mixed prices, even number of airline records" do
     input = %{
       {"airline", 0} => 11, {"hotel", 1} => 22, {"airline", 2} => 33,
       {"bag", 0} => 11, {"airline", 1} => 22, {"food", 2} => 33,
       {"airline", 3} => 44}
     expected = 1.5
-    assert Kaolcria.aaapp_median(input) == expected
+    assert Kaolcria.p_median(input) == expected
   end
 
 
-  test "aaapp_average(), empty map with airline purchases prices" do
+  test "p_average(), empty map with airline purchases prices" do
     input = %{}
     expected = 0
-    assert Kaolcria.aaapp_average(input) == expected
+    assert Kaolcria.p_average(input) == expected
   end
 
 
-  test "aaapp_average(), good map with mixed purchases prices" do
+  test "p_average(), good map with mixed purchases prices" do
     input = %{
       {"airline", 201} => 6, {"beans", 2002} => 12, {"airline", 20003} => 17,
       {"jelly", 201} => 6, {"airline", 2002} => 12, {"toast", 20003} => 17}
 
     expected = 7402.0
-    assert Kaolcria.aaapp_average(input) == expected
+    assert Kaolcria.p_average(input) == expected
   end
 
 
-  test "aaapp_average(), contrived map with airline purchases prices" do
+  test "p_average(), contrived map with airline purchases prices" do
     input = %{{"airline", 0} => 11, {"bread", 5} => 11, {"airline", 1} => 22}
     expected = 0.5
-    assert Kaolcria.aaapp_average(input) == expected
+    assert Kaolcria.p_average(input) == expected
+  end
+
+
+  test "p_min(), empty map with airline purchases prices" do
+    input = %{}
+    expected = 0
+    assert Kaolcria.p_min(input) == expected
+  end
+
+
+  test "p_min(), good map with mixed purchases prices" do
+    input = %{
+      {"airline", 201} => 6, {"beans", 2002} => 12, {"airline", 20003} => 17,
+      {"jelly", 201} => 6, {"airline", 2002} => 12, {"toast", 20003} => 17}
+
+    expected = 201
+    assert Kaolcria.p_min(input) == expected
+  end
+
+
+  test "p_min(), contrived map with airline purchases prices" do
+    input = %{{"airline", 0.1} => 11, {"bread", 5} => 11, {"airline", 1} => 22}
+    expected = 0.1
+    assert Kaolcria.p_min(input) == expected
   end
 
 
