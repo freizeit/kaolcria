@@ -90,9 +90,7 @@ defmodule Kaolcria do
   end
 
 
-  defp merge_purchase_lists(result, []) do
-    result
-  end
+  defp merge_purchase_lists(result, []), do: result
   defp merge_purchase_lists(result, [pcm | pcms]) do
     result = pcm
     |> Enum.map_reduce(result, fn(price, acc) ->
