@@ -321,6 +321,7 @@ defmodule ProcessJsonFilesTest do
     """},
     {"3.json", 0o600, """
       {"purchases":[
+        {"type":"drink","amount":4},
         {"type":"airline","amount":150}
       ]}
     """},
@@ -338,21 +339,25 @@ defmodule ProcessJsonFilesTest do
     """},
     {"6.json", 0o600, """
       {"purchases":[
+        {"type":"drink","amount":4},
         {"type":"airline","amount":10000}
       ]}
     """},
     {"7.json", 0o600, """
       {"purchases":[
+        {"type":"drink","amount":4},
         {"type":"airline","amount":9000}
       ]}
     """},
     {"8.json", 0o600, """
       {"purchases":[
+        {"type":"drink","amount":4},
         {"type":"airline","amount":10000}
       ]}
     """},
     {"9.json", 0o600, """
       {"purchases":[
+        {"type":"drink","amount":4},
         {"type":"airline","amount":9000}
       ]}
     """},
@@ -370,6 +375,7 @@ defmodule ProcessJsonFilesTest do
     """},
     {"17.json", 0o644, """
       {"purchases":[
+        {"type":"drink","amount":4},
         {"type":"airline","amount":10000},
         {"type":"airline","amount":10000},
         {"type":"airline","amount":150},
@@ -379,8 +385,9 @@ defmodule ProcessJsonFilesTest do
     """}
     ]
   test "process_json_files(), all files readable", context do
-    assert Kaolcria.process_json_files(
-      context[:tpath]) == %{{"airline", 150} => 6, {"airline", 10000} => 7}
+    expected = %{
+      {"airline", 150} => 6, {"airline", 10000} => 7, {"drink", 4} => 8}
+    assert Kaolcria.process_json_files(context[:tpath]) == expected
   end
 
 
