@@ -61,7 +61,8 @@ defmodule Kaolcria do
 
   @doc """
   Returns a sorted list (possibly empty) of 2-tuples where the first element is
-  the purchase type and the second element is the purchase price respectively.
+  the purchase type and the second element is the purchase price respectively
+  (aka "report").
   All the prices in the returned list will be unique.
   """
   def extract_purchases(path) do
