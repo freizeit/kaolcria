@@ -50,22 +50,22 @@ defmodule KaolcriaTest do
   end
 
 
-  test "anonymize_purchase_counts(), empty price count list" do
-    assert Kaolcria.anonymize_purchase_counts(%{}) == %{}
+  test "anonymize_purchases(), empty price count list" do
+    assert Kaolcria.anonymize_purchases(%{}) == %{}
   end
 
-  test "anonymize_purchase_counts(), all counts 6+" do
+  test "anonymize_purchases(), all counts 6+" do
     input = %{
       {"airline", 150} => 6,
       {"car", 928759} => 7,
       {"drink", 4} => 8,
       {"drink", 6} => 9,
       {"hotel", 460} => 10}
-    assert Kaolcria.anonymize_purchase_counts(input) == input
+    assert Kaolcria.anonymize_purchases(input) == input
   end
 
 
-  test "anonymize_purchase_counts(), mixed bag of counts" do
+  test "anonymize_purchases(), mixed bag of counts" do
     input = %{
       {"airline", 151} => 7,
       {"airline", 1004} => 2,
@@ -79,7 +79,7 @@ defmodule KaolcriaTest do
       {"airline", 151} => 7,
       {"car", 928751} => 9,
       {"hotel", 461} => 10}
-    assert Kaolcria.anonymize_purchase_counts(input) == expected
+    assert Kaolcria.anonymize_purchases(input) == expected
   end
 end
 
@@ -87,14 +87,14 @@ end
 defmodule MergePurchaseCountsTest do
   use ExUnit.Case
 
-  test "merge_purchase_counts(), empty price count list" do
+  test "merge_purchases(), empty price count list" do
     input = []
     expected = %{}
-    assert Kaolcria.merge_purchase_counts(input) == expected
+    assert Kaolcria.merge_purchases(input) == expected
   end
 
 
-  test "merge_purchase_counts(), single price count list" do
+  test "merge_purchases(), single price count list" do
     input = [[
       {"airline", 150},
       {"car", 928759},
@@ -107,11 +107,11 @@ defmodule MergePurchaseCountsTest do
       {"drink", 4} => 1,
       {"drink", 6} => 1,
       {"hotel", 460} => 1}
-    assert Kaolcria.merge_purchase_counts(input) == expected
+    assert Kaolcria.merge_purchases(input) == expected
   end
 
 
-  test "merge_purchase_counts(), multiple/mixed price count lists" do
+  test "merge_purchases(), multiple/mixed price count lists" do
     input = [
       [],
       [{"airline", 151},
@@ -138,7 +138,7 @@ defmodule MergePurchaseCountsTest do
       {"hotel", 461} => 1,
       {"pillow", 26} => 2}
 
-    assert Kaolcria.merge_purchase_counts(input) == expected
+    assert Kaolcria.merge_purchases(input) == expected
   end
 end
 

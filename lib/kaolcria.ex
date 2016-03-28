@@ -84,7 +84,7 @@ defmodule Kaolcria do
   Assumption: all item/price tuples are unique with respect to the list that
   contains them.
   """
-  def merge_purchase_counts(prices) do
+  def merge_purchases(prices) do
     merge_purchase_lists(%{}, prices)
   end
 
@@ -106,7 +106,7 @@ defmodule Kaolcria do
   Filters the given map with airline price counts so that only prices with
   counts of 6 or above remain (aka "anonymize").
   """
-  def anonymize_purchase_counts(pcm) do
+  def anonymize_purchases(pcm) do
     pcm |> Enum.filter(fn({_, count}) -> count >= 6 end) |> Enum.into(%{})
   end
 
@@ -139,9 +139,9 @@ defmodule Kaolcria do
             end
           end)
         ### aggregate
-        |> merge_purchase_counts
+        |> merge_purchases
         ### anonymize
-        |> anonymize_purchase_counts
+        |> anonymize_purchases
       {:error, err} ->
         IO.puts(:stderr, "Error: #{err} :: #{path}")
         %{}
