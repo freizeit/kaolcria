@@ -98,12 +98,26 @@ defmodule Kaolcria do
 
 
   @doc """
-  Merges a list of lists with purchase prices and returns the results
+  Merges a list of lists with item/price tuples and returns the counts
   in a map (aka "aggregate").
   Assumption: all item/price tuples are unique with respect to the list that
   contains them.
   """
   def merge_purchase_counts(prices) do
+    merge_purchase_lists(%{}, prices)
+  end
+
+
+  defp merge_purchase_lists(result, []) do
+    result
+  end
+  defp merge_purchase_lists(result, [pcm | pcms]) do
+    result = pcm
+    |> Enum.map_reduce(result, fn(price, acc) ->
+      Map.get_and_update(acc, price, fn(v) ->
+        if v == nil do {nil,1} else {v,v+1} end end) end)
+    |> elem(1)
+    merge_purchase_lists(result, pcms)
   end
 
 
