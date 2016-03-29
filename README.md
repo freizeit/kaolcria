@@ -1,6 +1,6 @@
 # Kaolcria
 
-This is an [elixir](http://elixir-lang.org/) application. You will need elixir up and running on your machine in order to install it and play with it.
+This is an [elixir](http://elixir-lang.org/) application. You will need [elixir up and running](http://elixir-lang.org/install.html) on your machine in order to install it and play with it.
 
 ## Installation
 
