@@ -8,6 +8,7 @@ defmodule Aircloak.Mixfile do
      escript: [main_module: Kaolcria],
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
+     test_coverage: [tool: Coverex.Task, coveralls: true, ignore_modules: []],
      deps: deps]
   end
 
@@ -28,6 +29,7 @@ defmodule Aircloak.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [{:poison, "~> 2.0"}]
+    [{:poison, "~> 2.0"},
+     {:coverex, only: :test}]
   end
 end
