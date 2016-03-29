@@ -38,7 +38,8 @@ This is an [elixir](http://elixir-lang.org/) application. You will need [elixir 
 
 Boolean command line args are turned off by prefixing them with `no-`. Example:
 
-    ```bash
-    ./aircloak --no-anonymize
-    ```
+  ```bash
+  ./aircloak --no-anonymize
+  ```
 
+last but not least: have fun :)
