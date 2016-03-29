@@ -152,7 +152,7 @@ defmodule Kaolcria do
 
 
   @doc """
-  Return the average of a map with aggregated and anonymized
+  Return the average of a map with aggregated (and anonymized?)
   purchase prices.
   """
   def p_average(pps, ptype \\ "airline")
@@ -166,7 +166,7 @@ defmodule Kaolcria do
 
 
   @doc """
-  Return the median of a map with aggregated and anonymized
+  Return the median of a map with aggregated (and anonymized?)
   purchase prices.
   """
   def p_median(pps, ptype \\ "airline")
@@ -187,6 +187,10 @@ defmodule Kaolcria do
   def p_median(_pps, _ptype), do: 0
 
 
+  @doc """
+  Return the minimum of a map with aggregated (and anonymized?)
+  purchase prices.
+  """
   def p_min(pps, ptype \\ "airline")
   def p_min(pps, ptype) when pps != %{} do
     Map.keys(pps)
@@ -197,6 +201,10 @@ defmodule Kaolcria do
   def p_min(_pps, _ptype), do: 0
 
 
+  @doc """
+  Return the maximum of a map with aggregated (and anonymized?)
+  purchase prices.
+  """
   def p_max(pps, ptype \\ "airline")
   def p_max(pps, ptype) when pps != %{} do
     Map.keys(pps)
@@ -207,6 +215,17 @@ defmodule Kaolcria do
   def p_max(_pps, _ptype), do: 0
 
 
+  @doc """
+  Main function.
+
+  Process json files with purchase data
+
+    --debug      print debug data
+    --help       print this help
+    --anonymize  anonymize purchase data [default: true]
+    --path       path to the json data files [default: "data"]
+    --tag        purchase tags to process [default: "airline"]
+  """
   def main(argv) do
     { parse, _, _ } = OptionParser.parse(
       argv, strict: [
