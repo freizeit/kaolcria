@@ -33,3 +33,11 @@ This is an [elixir](http://elixir-lang.org/) application. You will need elixir u
     ```bash
     ./aircloak --help
     ```
+
+## Please note
+
+Boolean command line args are turned off by prefixing them with `no-`. Example:
+
+    ```bash
+    ./aircloak --no-anonymize
+    ```
