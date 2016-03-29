@@ -118,7 +118,7 @@ defmodule Kaolcria do
   the given directory.
   Returns an aggregated and anonymized map with airline price counts.
   """
-  def process_json_files(path, anonymize \\ true) do
+  def process_json_files(path, flags \\ %{anonymize: true}) do
     case list_json_files(path) do
       {:ok, files} ->
         me = self
@@ -136,16 +136,20 @@ defmodule Kaolcria do
         |> Enum.map(fn(_pid) -> receive do
               {:ok, result} -> result
               {:error, err, path} ->
-                IO.puts(:stderr, "Error: #{err} :: #{path}")
+                if flags[:printerrors] do
+                  IO.puts(:stderr, "Error: #{err} :: #{path}")
+                end
                 %{}
             end
           end)
         ### aggregate
         |> merge_purchases
         ### anonymize
-        |> anonymize_purchases(anonymize)
+        |> anonymize_purchases(flags[:anonymize])
       {:error, err} ->
-        IO.puts(:stderr, "Error: #{err} :: #{path}")
+        if flags[:printerrors] do
+          IO.puts(:stderr, "Error: #{err} :: #{path}")
+        end
         %{}
     end
   end
@@ -249,7 +253,8 @@ defmodule Kaolcria do
       IO.inspect params
     end
 
-    data = process_json_files(params[:path], params[:anonymize])
+    flags = %{anonymize: params[:anonymize], printerrors: true}
+    data = process_json_files(params[:path], flags)
 
     if params[:debug] == true do
       IO.puts("\n>> aggregated (& anonymized?) data:")

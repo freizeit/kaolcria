@@ -356,7 +356,8 @@ defmodule ProcessJsonFilesTest do
     """}
     ]
   test "process_json_files(), directory not readable", context do
-    assert Kaolcria.process_json_files(context[:tpath]) == %{}
+    flags = %{anonymize: true, printerrors: false}
+    assert Kaolcria.process_json_files(context[:tpath], flags) == %{}
   end
 
 
@@ -446,7 +447,8 @@ defmodule ProcessJsonFilesTest do
   test "process_json_files(), all files readable", context do
     expected = %{
       {"airline", 150} => 6, {"airline", 10000} => 7, {"drink", 4} => 8}
-    assert Kaolcria.process_json_files(context[:tpath]) == expected
+    flags = %{anonymize: true, printerrors: false}
+    assert Kaolcria.process_json_files(context[:tpath], flags) == expected
   end
 
 
@@ -516,7 +518,8 @@ defmodule ProcessJsonFilesTest do
     """}
     ]
   test "process_json_files(), 1.json not readable", context do
-    assert Kaolcria.process_json_files(context[:tpath]) == %{{"airline", 10000} => 6}
+    flags = %{anonymize: true, printerrors: false}
+    assert Kaolcria.process_json_files(context[:tpath], flags) == %{{"airline", 10000} => 6}
   end
 
 
@@ -558,7 +561,8 @@ defmodule ProcessJsonFilesTest do
     """}
     ]
   test "process_json_files(), 1.json and 17.json not readable", context do
-    assert Kaolcria.process_json_files(context[:tpath]) == %{}
+    flags = %{anonymize: true, printerrors: false}
+    assert Kaolcria.process_json_files(context[:tpath], flags) == %{}
   end
 
 
@@ -604,7 +608,8 @@ defmodule ProcessJsonFilesTest do
       {"airline", 150} => 1, {"airline", 9000} => 1, {"airline", 10000} => 2,
       {"car", 928759} => 1, {"drink", 4} => 1, {"drink", 6} => 1,
       {"hotel", 460} => 1, {"pillow", 25} => 1}
-    assert Kaolcria.process_json_files(context[:tpath], false) == expected
+    flags = %{anonymize: false, printerrors: false}
+    assert Kaolcria.process_json_files(context[:tpath], flags) == expected
   end
 
 
