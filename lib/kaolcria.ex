@@ -210,31 +210,39 @@ defmodule Kaolcria do
   def main(argv) do
     { parse, _, _ } = OptionParser.parse(
       argv, strict: [
-        help: :boolean, anonymize: :boolean, path: :string, tag: :string])
+        debug: :boolean, help: :boolean, anonymize: :boolean, path: :string,
+        tag: :string])
 
     if parse[:help] do
       print_help()
       System.halt(0)
     end
 
-    IO.inspect parse
-
     params = Map.merge(
-      %{anonymize: true, path: "data", tag: "airline"},
+      %{debug: false, anonymize: true, path: "data", tag: "airline"},
       parse |> Enum.into(%{}))
 
-    IO.inspect params
+    if params[:debug] == true do
+      IO.puts("\n>> command line args:")
+      IO.inspect parse
+
+      IO.puts("\n>> application parameters:")
+      IO.inspect params
+    end
 
     data = process_json_files(params[:path], params[:anonymize])
 
-    IO.inspect data
+    if params[:debug] == true do
+      IO.puts("\n>> aggregated (& anonymized?) data:")
+      IO.inspect data
+    end
 
     min = p_min(data, params[:tag])
     max = p_max(data, params[:tag])
     avg = p_average(data, params[:tag])
     med = p_median(data, params[:tag])
 
-    IO.inspect("min: #{min}, max: #{max}, average: #{avg}, median: #{med}")
+    IO.puts("\nmin: #{min}, max: #{max}, average: #{avg}, median: #{med}")
 
   end
 
@@ -243,6 +251,7 @@ defmodule Kaolcria do
     help_text = """
       Process json files with purchase data
 
+        --debug      print debug data [default: false]
         --help       print this help
         --anonymize  anonymize purchase data [default: true]
         --path       path to the json data files [default: "data"]
