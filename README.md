@@ -1,24 +1,35 @@
 # Kaolcria
 
-**TODO: Add description**
+This is an [elixir](http://elixir-lang.org/) application. You will need elixir up and running on your machine in order to install it and play with it.
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed as:
+`git clone` this repository. Then
 
-  1. Add `kaolcria` to your list of dependencies in `mix.exs`:
+  1. install and compile the dependencies as follows:
 
-    ```elixir
-    def deps do
-      [{:kaolcria, "~> 0.0.1"}]
-    end
+    ```bash
+    cd your-local-copy-of-repo
+    mix deps.get
+    mix deps.compile
     ```
 
-  2. Ensure `kaolcria` is started before your application:
+  1. run the tests
 
-    ```elixir
-    def application do
-      [applications: [:kaolcria]]
-    end
+    ```bash
+    mix test
     ```
 
+    The tests should complete without errors.
+
+  1. build the application
+
+    ```bash
+    mix escript.build
+    ```
+
+  1. view the help to see what command line arguments are available
+
+    ```bash
+    ./aircloak --help
+    ```
