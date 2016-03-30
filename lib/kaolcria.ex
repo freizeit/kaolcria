@@ -25,17 +25,27 @@ defmodule Kaolcria do
   (aka "report").
   All the prices in the returned list will be unique.
   """
-  def extract_purchases(path) do
+  def extract_purchases(path, dedup \\ true)
+  def extract_purchases(path, dedup) when dedup == true do
     case File.read(path) do
       {:error, _} = err -> err
-      {:ok, body} -> {:ok,
-        body
-        |> Poison.Parser.parse!
-        |> Access.get("purchases")
-        |> Enum.map(fn d -> {d["type"], d["amount"]} end)
-        |> Enum.sort
-        |> Enum.dedup}
+      {:ok, body} -> {:ok, extract_all_purchases(body) |> Enum.dedup}
     end
+  end
+  def extract_purchases(path, _dedup) do
+    case File.read(path) do
+      {:error, _} = err -> err
+      {:ok, body} -> {:ok, extract_all_purchases(body)}
+    end
+  end
+
+
+  defp extract_all_purchases(body) do
+    body
+    |> Poison.Parser.parse!
+    |> Access.get("purchases")
+    |> Enum.map(fn d -> {d["type"], d["amount"]} end)
+    |> Enum.sort
   end
 
 
@@ -97,7 +107,7 @@ defmodule Kaolcria do
               {:ok, result} -> result
               {:error, err, path} ->
                 if flags[:printerrors] do
-                  IO.puts(:stderr, "Error: #{err} :: #{path}")
+                  IO.puts(:stderr, "Error: #{:file.format_error(err)} :: #{path}")
                 end
                 %{}
             end
@@ -108,7 +118,7 @@ defmodule Kaolcria do
         |> anonymize_purchases(flags[:anonymize])
       {:error, err} ->
         if flags[:printerrors] do
-          IO.puts(:stderr, "Error: #{err} :: #{path}")
+          IO.puts(:stderr, "Error: #{:file.format_error(err)} :: #{path}")
         end
         %{}
     end
@@ -162,10 +172,10 @@ defmodule Kaolcria do
   """
   def p_min(pps, ptype \\ "airline")
   def p_min(pps, ptype) when is_list(pps) do
-    pps
-    |> Enum.filter(fn({pt, _pv}) -> pt == ptype end)
-    |> Enum.min
-    |> elem(1)
+    case pps |> Enum.filter(fn({pt, _pv}) -> pt == ptype end) do
+          [] -> -1
+          ps -> Enum.min(ps) |> elem(1)
+    end
   end
   def p_min(pps, ptype) when pps != %{} do
     p_min(Map.keys(pps), ptype)
@@ -239,6 +249,16 @@ defmodule Kaolcria do
 
     IO.puts("\nmin: #{min}, max: #{max}, average: #{avg}, median: #{med}")
 
+  end
+
+
+  def print_result(prs) do
+    min = p_min(prs)
+    max = p_max(prs)
+    avg = p_average(prs)
+    med = p_median(prs)
+
+    IO.puts("\nmin: #{min}, max: #{max}, average: #{avg}, median: #{med}")
   end
 
 
