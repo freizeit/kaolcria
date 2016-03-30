@@ -120,11 +120,13 @@ defmodule Kaolcria do
   purchase prices.
   """
   def p_average(pps, ptype \\ "airline")
-  def p_average(pps, ptype) when pps != %{} do
-    keys = Map.keys(pps)
-    |> Enum.filter(fn({pt, _pv}) -> pt == ptype end)
+  def p_average(pps, ptype) when is_list(pps) do
+    keys = pps |> Enum.filter(fn({pt, _pv}) -> pt == ptype end)
     sum = keys |> Enum.reduce(0, fn({_pt, pv}, acc) -> pv + acc end)
     sum/Enum.count(keys)
+  end
+  def p_average(pps, ptype) when pps != %{} do
+    p_average(Map.keys(pps), ptype)
   end
   def p_average(_pps, _ptype), do: 0
 
@@ -134,8 +136,8 @@ defmodule Kaolcria do
   purchase prices.
   """
   def p_median(pps, ptype \\ "airline")
-  def p_median(pps, ptype) when pps != %{} do
-    keys = Map.keys(pps)
+  def p_median(pps, ptype) when is_list(pps) do
+    keys = pps
     |> Enum.filter(fn({pt, _pv}) -> pt == ptype end)
     |> Enum.sort
     num_keys = Enum.count(keys)
@@ -148,6 +150,9 @@ defmodule Kaolcria do
       (m1 + m2)/2
     end
   end
+  def p_median(pps, ptype) when pps != %{} do
+    p_median(Map.keys(pps), ptype)
+  end
   def p_median(_pps, _ptype), do: 0
 
 
@@ -156,11 +161,14 @@ defmodule Kaolcria do
   purchase prices.
   """
   def p_min(pps, ptype \\ "airline")
-  def p_min(pps, ptype) when pps != %{} do
-    Map.keys(pps)
+  def p_min(pps, ptype) when is_list(pps) do
+    pps
     |> Enum.filter(fn({pt, _pv}) -> pt == ptype end)
     |> Enum.min
     |> elem(1)
+  end
+  def p_min(pps, ptype) when pps != %{} do
+    p_min(Map.keys(pps), ptype)
   end
   def p_min(_pps, _ptype), do: 0
 
@@ -170,11 +178,14 @@ defmodule Kaolcria do
   purchase prices.
   """
   def p_max(pps, ptype \\ "airline")
-  def p_max(pps, ptype) when pps != %{} do
-    Map.keys(pps)
+  def p_max(pps, ptype) when is_list(pps) do
+    pps
     |> Enum.filter(fn({pt, _pv}) -> pt == ptype end)
     |> Enum.max
     |> elem(1)
+  end
+  def p_max(pps, ptype) when pps != %{} do
+    p_max(Map.keys(pps), ptype)
   end
   def p_max(_pps, _ptype), do: 0
 
