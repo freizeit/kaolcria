@@ -133,7 +133,10 @@ defmodule Kaolcria do
   def p_average(pps, ptype) when is_list(pps) do
     keys = pps |> Enum.filter(fn({pt, _pv}) -> pt == ptype end)
     sum = keys |> Enum.reduce(0, fn({_pt, pv}, acc) -> pv + acc end)
-    sum/Enum.count(keys)
+    case keys do
+      [] -> -1
+       _ -> sum/Enum.count(keys)
+    end
   end
   def p_average(pps, ptype) when pps != %{} do
     p_average(Map.keys(pps), ptype)
@@ -151,13 +154,17 @@ defmodule Kaolcria do
     |> Enum.filter(fn({pt, _pv}) -> pt == ptype end)
     |> Enum.sort
     num_keys = Enum.count(keys)
-    if rem(num_keys, 2) == 1 do
-      # odd number of keys
-      Enum.at(keys, div(num_keys, 2)) |> elem(1)
+    if num_keys > 0 do
+      if rem(num_keys, 2) == 1 do
+        # odd number of keys
+        Enum.at(keys, div(num_keys, 2)) |> elem(1)
+      else
+        {_, m1} = Enum.at(keys, div(num_keys, 2) - 1)
+        {_, m2} = Enum.at(keys, div(num_keys, 2))
+        (m1 + m2)/2
+      end
     else
-      {_, m1} = Enum.at(keys, div(num_keys, 2) - 1)
-      {_, m2} = Enum.at(keys, div(num_keys, 2))
-      (m1 + m2)/2
+      -1
     end
   end
   def p_median(pps, ptype) when pps != %{} do
@@ -189,10 +196,10 @@ defmodule Kaolcria do
   """
   def p_max(pps, ptype \\ "airline")
   def p_max(pps, ptype) when is_list(pps) do
-    pps
-    |> Enum.filter(fn({pt, _pv}) -> pt == ptype end)
-    |> Enum.max
-    |> elem(1)
+    case pps |> Enum.filter(fn({pt, _pv}) -> pt == ptype end) do
+      [] -> -1
+      ps -> Enum.max(ps) |> elem(1)
+    end
   end
   def p_max(pps, ptype) when pps != %{} do
     p_max(Map.keys(pps), ptype)
