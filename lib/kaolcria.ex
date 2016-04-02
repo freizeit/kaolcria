@@ -3,6 +3,8 @@ defmodule Kaolcria do
   coding challenge solution
   """
 
+  require Integer
+
 
   @doc """
   Returns a sorted list with all the *.json files in the given `path`.
@@ -22,30 +24,18 @@ defmodule Kaolcria do
   @doc """
   Returns a sorted list (possibly empty) of 2-tuples where the first element is
   the purchase type and the second element is the purchase price respectively
-  (aka "report").
-  All the prices in the returned list will be unique.
   """
-  def extract_purchases(path, dedup \\ true)
-  def extract_purchases(path, dedup) when dedup == true do
+  def extract_purchases(path, tag \\ "airline") do
     case File.read(path) do
       {:error, _} = err -> err
-      {:ok, body} -> {:ok, extract_all_purchases(body) |> Enum.dedup}
+      {:ok, body} -> {:ok,
+        body
+        |> Poison.Parser.parse!
+        |> Access.get("purchases")
+        |> Enum.filter(fn d -> d["type"] == tag end)
+        |> Enum.map(fn d -> {d["type"], d["amount"]} end)
+        |> Enum.sort}
     end
-  end
-  def extract_purchases(path, _dedup) do
-    case File.read(path) do
-      {:error, _} = err -> err
-      {:ok, body} -> {:ok, extract_all_purchases(body)}
-    end
-  end
-
-
-  defp extract_all_purchases(body) do
-    body
-    |> Poison.Parser.parse!
-    |> Access.get("purchases")
-    |> Enum.map(fn d -> {d["type"], d["amount"]} end)
-    |> Enum.sort
   end
 
 
@@ -63,6 +53,7 @@ defmodule Kaolcria do
   defp merge_purchase_lists(result, []), do: result
   defp merge_purchase_lists(result, [pcm | pcms]) do
     result = pcm
+    |> Enum.filter(fn({_, v}) -> v > 0 end)
     |> Enum.map_reduce(result, fn(price, acc) ->
       Map.get_and_update(acc, price, fn(v) ->
         if v == nil do {nil,1} else {v,v+1} end end) end)
@@ -84,33 +75,44 @@ defmodule Kaolcria do
 
 
   @doc """
+  From the "Programming Elixir" book but receives results in random order.
+  """
+  def pmap(collection, fun) do
+    me = self
+    collection
+    |> Enum.map(fn (elem) ->
+        spawn_link fn -> (send me, { self, fun.(elem) }) end
+      end)
+    |> Enum.map(fn (_) ->
+        receive do { _, result } -> result end
+      end)
+  end
+
+
+  @doc """
   Processes, aggregates and anonymizes the data contained in the json files in
   the given directory.
   Returns an aggregated and anonymized map with airline price counts.
   """
-  def process_json_files(path, flags \\ %{anonymize: true}) do
+  def process_json_files(path, tag \\ "airline", flags \\ %{anonymize: true}) do
     case list_json_files(path) do
       {:ok, files} ->
-        me = self
 
         ### report
         files
         |> Enum.map(fn path ->
-          spawn_link fn ->
-              case extract_purchases(path) do
-                {:ok, prices} -> send me, {:ok, prices}
-                {:error, ev} -> send me, {:error, ev, path}
-              end
+            case extract_purchases(path, tag) do
+              {:ok, _} = result -> result
+              {:error, ev} -> {:error, ev, path}
             end
           end)
-        |> Enum.map(fn(_pid) -> receive do
-              {:ok, result} -> result
-              {:error, err, path} ->
-                if flags[:printerrors] do
-                  IO.puts(:stderr, "Error: #{:file.format_error(err)} :: #{path}")
-                end
-                %{}
-            end
+        |> Enum.map(fn
+            {:ok, result} -> [{tag, p_average(result)}]
+            {:error, err, path} ->
+              if flags[:printerrors] do
+                IO.puts(:stderr, "Error: #{:file.format_error(err)} :: #{path}")
+              end
+              [{"error", -1}]
           end)
         ### aggregate
         |> merge_purchases
@@ -155,7 +157,7 @@ defmodule Kaolcria do
     |> Enum.sort
     num_keys = Enum.count(keys)
     if num_keys > 0 do
-      if rem(num_keys, 2) == 1 do
+      if Integer.is_odd(num_keys) do
         # odd number of keys
         Enum.at(keys, div(num_keys, 2)) |> elem(1)
       else
@@ -242,7 +244,7 @@ defmodule Kaolcria do
     end
 
     flags = %{anonymize: params[:anonymize], printerrors: true}
-    data = process_json_files(params[:path], flags)
+    data = process_json_files(params[:path], params[:tag], flags)
 
     if params[:debug] == true do
       IO.puts("\n>> aggregated (& anonymized?) data:")
@@ -281,4 +283,6 @@ defmodule Kaolcria do
       """
     IO.puts help_text
   end
+
+
 end

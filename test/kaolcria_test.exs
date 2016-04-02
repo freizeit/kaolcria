@@ -357,7 +357,8 @@ defmodule ProcessJsonFilesTest do
     ]
   test "process_json_files(), directory not readable", context do
     flags = %{anonymize: true, printerrors: false}
-    assert Kaolcria.process_json_files(context[:tpath], flags) == %{}
+    assert Kaolcria.process_json_files(
+      context[:tpath], "airline", flags) == %{}
   end
 
 
@@ -367,7 +368,7 @@ defmodule ProcessJsonFilesTest do
       {"purchases":[
         {"type":"hotel","amount":460},
         {"type":"drink","amount":6},
-        {"type":"airline","amount":150},
+        {"type":"airline","amount":2000},
         {"type":"car","amount":928759},
         {"type":"drink","amount":4},
         {"type":"airline","amount":10000}
@@ -375,8 +376,7 @@ defmodule ProcessJsonFilesTest do
     """},
     {"2.json", 0o600, """
       {"purchases":[
-        {"type":"airline","amount":150},
-        {"type":"airline","amount":10000}
+        {"type":"airline","amount":6000}
       ]}
     """},
     {"3.json", 0o600, """
@@ -387,14 +387,14 @@ defmodule ProcessJsonFilesTest do
     """},
     {"4.json", 0o600, """
       {"purchases":[
-        {"type":"airline","amount":150},
+        {"type":"airline","amount":3000},
         {"type":"drink","amount":4},
-        {"type":"airline","amount":10000}
+        {"type":"airline","amount":9000}
       ]}
     """},
     {"5.json", 0o600, """
       {"purchases":[
-        {"type":"airline","amount":9000}
+        {"type":"airline","amount":6000}
       ]}
     """},
     {"6.json", 0o600, """
@@ -406,13 +406,13 @@ defmodule ProcessJsonFilesTest do
     {"7.json", 0o600, """
       {"purchases":[
         {"type":"drink","amount":4},
-        {"type":"airline","amount":9000}
+        {"type":"airline","amount":6000}
       ]}
     """},
     {"8.json", 0o600, """
       {"purchases":[
         {"type":"drink","amount":4},
-        {"type":"airline","amount":10000}
+        {"type":"airline","amount":6000}
       ]}
     """},
     {"9.json", 0o600, """
@@ -445,10 +445,10 @@ defmodule ProcessJsonFilesTest do
     """}
     ]
   test "process_json_files(), all files readable", context do
-    expected = %{
-      {"airline", 150} => 6, {"airline", 10000} => 7, {"drink", 4} => 8}
+    expected = %{{"airline", 6.0e3} => 6}
     flags = %{anonymize: true, printerrors: false}
-    assert Kaolcria.process_json_files(context[:tpath], flags) == expected
+    assert Kaolcria.process_json_files(
+      context[:tpath], "airline", flags) == expected
   end
 
 
@@ -497,6 +497,12 @@ defmodule ProcessJsonFilesTest do
         {"type":"drink","amount":4}
       ]}
     """},
+    {"8.json", 0o400, """
+      {"purchases":[
+        {"type":"airline","amount":10000},
+        {"type":"drink","amount":4}
+      ]}
+    """},
     {"15.json", 0o640, """
       {"purchases":[
         {"type":"airline","amount":10000},
@@ -519,7 +525,8 @@ defmodule ProcessJsonFilesTest do
     ]
   test "process_json_files(), 1.json not readable", context do
     flags = %{anonymize: true, printerrors: false}
-    assert Kaolcria.process_json_files(context[:tpath], flags) == %{{"airline", 10000} => 6}
+    assert Kaolcria.process_json_files(
+      context[:tpath], "airline", flags) == %{{"airline", 1.0e4} => 6}
   end
 
 
@@ -562,7 +569,7 @@ defmodule ProcessJsonFilesTest do
     ]
   test "process_json_files(), 1.json and 17.json not readable", context do
     flags = %{anonymize: true, printerrors: false}
-    assert Kaolcria.process_json_files(context[:tpath], flags) == %{}
+    assert Kaolcria.process_json_files(context[:tpath], "airline", flags) == %{}
   end
 
 
@@ -605,11 +612,9 @@ defmodule ProcessJsonFilesTest do
     ]
   test "process_json_files(), `anonymize` flag off", context do
     expected = %{
-      {"airline", 150} => 1, {"airline", 9000} => 1, {"airline", 10000} => 2,
-      {"car", 928759} => 1, {"drink", 4} => 1, {"drink", 6} => 1,
-      {"hotel", 460} => 1, {"pillow", 25} => 1}
+      {"airline", 6716.666666666667} => 1, {"airline", 9714.285714285714} => 1}
     flags = %{anonymize: false, printerrors: false}
-    assert Kaolcria.process_json_files(context[:tpath], flags) == expected
+    assert Kaolcria.process_json_files(context[:tpath], "airline", flags) == expected
   end
 
 
@@ -666,12 +671,7 @@ defmodule ExtractPurchasesTest do
     ]}
     """
   test "extract_purchases(), single entry", context do
-    expected = {:ok, [
-      {"airline", 150},
-      {"car", 928759},
-      {"drink", 4},
-      {"drink", 6},
-      {"hotel", 460}]}
+    expected = {:ok, [{"airline", 150}]}
     assert Kaolcria.extract_purchases(context[:fpath]) == expected
   end
 
@@ -688,8 +688,8 @@ defmodule ExtractPurchasesTest do
     """
   test "extract_purchases(), 5x10k", context do
     expected = {:ok, [
-      {"airline", 10000},
-      {"pillow", 25}]}
+      {"airline", 10000}, {"airline", 10000}, {"airline", 10000},
+      {"airline", 10000}, {"airline", 10000}]}
     assert Kaolcria.extract_purchases(context[:fpath]) == expected
   end
 
@@ -704,13 +704,8 @@ defmodule ExtractPurchasesTest do
     ]}
     """
   test "extract_purchases(), no airline purchases", context do
-    expected = {:ok, [
-      {"car", 928759},
-      {"drink", 4},
-      {"drink", 6},
-      {"hotel", 460},
-      {"phoneline", 150}]}
-    assert Kaolcria.extract_purchases(context[:fpath]) == expected
+    expected = {:ok, [{"drink", 4}, {"drink", 6}]}
+    assert Kaolcria.extract_purchases(context[:fpath], "drink") == expected
   end
 
 
@@ -724,12 +719,10 @@ defmodule ExtractPurchasesTest do
       {"type":"pillow","amount":25}
     ]}
     """
-  test "extract_airline_purchases(), mixed bag", context do
+  test "extract_purchases(), mixed bag", context do
     expected = {:ok, [
-      {"airline", 102},
-      {"airline", 1003},
-      {"airline", 10004},
-      {"pillow", 25}]}
+      {"airline", 102}, {"airline", 1003}, {"airline", 1003},
+      {"airline", 10004}, {"airline", 10004}]}
     assert Kaolcria.extract_purchases(context[:fpath]) == expected
   end
 
