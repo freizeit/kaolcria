@@ -1,6 +1,22 @@
 defmodule GfreqTest do
   use ExUnit.Case
 
+
+  test "interval(), price < 0" do
+    assert Gfreq.interval(-1) == nil
+  end
+
+
+  test "interval(), price somewhere in the middle" do
+    assert Gfreq.interval(4000) == {3684, 4268}
+  end
+
+
+  test "interval(), price out of bounds" do
+    assert Gfreq.interval(4000000) == nil
+  end
+
+
   test "p_median(), empty map with airline purchases prices" do
     input = %{}
     expected = 0
