@@ -31,7 +31,7 @@ This is an [elixir](http://elixir-lang.org/) application. You will need [elixir 
   1. view the help to see what command line arguments are available
 
     ```bash
-    ./aircloak --help
+    ./kaolcria --help
     ```
 
 ## Please note
@@ -39,7 +39,7 @@ This is an [elixir](http://elixir-lang.org/) application. You will need [elixir 
 Boolean command line args are turned off by prefixing them with `no-`. Example:
 
   ```bash
-  ./aircloak --no-anonymize
+  ./kaolcria --no-anonymize
   ```
 
 last but not least: have fun :)

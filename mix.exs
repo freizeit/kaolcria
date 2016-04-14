@@ -1,8 +1,8 @@
-defmodule Aircloak.Mixfile do
+defmodule Kaolcria.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :aircloak,
+    [app: :kaolcria,
      version: "0.0.1",
      elixir: "~> 1.2.3",
      escript: [main_module: Kaolcria],
