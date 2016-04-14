@@ -10,11 +10,11 @@ use Mix.Config
 
 # You can configure for your application as:
 #
-#     config :aircloak, key: :value
+#     config :kaolcria, key: :value
 #
 # And access this configuration in your application as:
 #
-#     Application.get_env(:aircloak, :key)
+#     Application.get_env(:kaolcria, :key)
 #
 # Or configure a 3rd-party app:
 #
