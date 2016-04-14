@@ -8,28 +8,29 @@ defmodule Gfreq do
   require Integer
 
 
-  #%{140 => 0, 287 => 141, 462 => 288, 667 => 463, 904 => 668, 1177 => 905,
-  #  1487 => 1178, 1837 => 1488, 2229 => 1838, 2666 => 2230, 3150 => 2667,
-  #  3683 => 3151, 4268 => 3684, 4907 => 4269, 5602 => 4908, 6357 => 5603,
-  #  7173 => 6358, 8053 => 7174, 8999 => 8054, 10014 => 9000}
-  @intervals 8..70
+  # %{0 => 140, 141 => 287, 288 => 462, 463 => 667, 668 => 904, 905 => 1177,
+  #   1178 => 1487, 1488 => 1837, 1838 => 2229, 2230 => 2666, 2667 => 3150,
+  #   3151 => 3683, 3684 => 4268, 4269 => 4907, 4908 => 5602, 5603 => 6357,
+  #   6358 => 7173, 7174 => 8053, 8054 => 8999, 9000 => 10014}
+  @intervals 8..29
     |> Enum.map(fn x -> (div((4*x*x*x + 7*x*x), 10) - 329) end)
     |> Enum.drop(2)
-    |> Enum.take(20)
-    |> Enum.map_reduce(0, fn(x, acc) -> {{x-1, acc}, x} end)
+    |> Enum.map_reduce(0, fn(x, acc) -> {{acc, x-1}, x} end)
     |> elem(0)
     |> Enum.into(%{})
 
 
-  #[140, 287, 462, 667, 904, 1177, 1487, 1837, 2229, 2666, 3150, 3683, 4268,
-  # 4907, 5602, 6357, 7173, 8053, 8999, 10014]
-  @upper_bounds @intervals |> Map.keys |> Enum.sort
+  # [9000, 8054, 7174, 6358, 5603, 4908, 4269, 3684, 3151, 2667, 2230, 1838,
+  #  1488, 1178, 905, 668, 463, 288, 141, 0]
+  @lower_bounds @intervals |> Map.keys |> Enum.sort |> Enum.reverse
 
+  # 10014
+  @max_price @intervals[List.first(@lower_bounds)]
 
-  def interval(price) when price > 0 do
-    case Enum.find(@upper_bounds, fn x -> price <= x end) do
+  def interval(price) when price >= 0 and price <= @max_price do
+    case Enum.find(@lower_bounds, fn x -> price >= x end) do
       nil -> nil
-      bound -> {@intervals[bound], bound}
+      bound -> {bound, @intervals[bound]}
     end
   end
   def interval(_price), do: nil

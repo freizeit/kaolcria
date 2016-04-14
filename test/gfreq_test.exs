@@ -12,8 +12,23 @@ defmodule GfreqTest do
   end
 
 
+  test "interval(), price at lower bound" do
+    assert Gfreq.interval(0) == {0, 140}
+  end
+
+
+  test "interval(), price in last interval" do
+    assert Gfreq.interval(9000) == {9000, 10014}
+  end
+
+
+  test "interval(), price at upper bound" do
+    assert Gfreq.interval(10014) == {9000, 10014}
+  end
+
+
   test "interval(), price out of bounds" do
-    assert Gfreq.interval(4000000) == nil
+    assert Gfreq.interval(10015) == nil
   end
 
 
