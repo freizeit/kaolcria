@@ -33,8 +33,9 @@ defmodule Kaolcria do
         |> Poison.Parser.parse!
         |> Access.get("purchases")
         |> Enum.filter(fn d -> d["type"] == tag end)
-        |> Enum.map(fn d -> {d["type"], d["amount"]} end)
-        |> Enum.sort}
+        |> Enum.map(fn d -> {d["type"], Gfreq.interval(d["amount"])} end)
+        |> Enum.sort
+        |> Enum.dedup}
     end
   end
 
@@ -100,19 +101,19 @@ defmodule Kaolcria do
 
         ### report
         files
-        |> Enum.map(fn path ->
+        |> pmap(fn path ->
             case extract_purchases(path, tag) do
               {:ok, _} = result -> result
               {:error, ev} -> {:error, ev, path}
             end
           end)
         |> Enum.map(fn
-            {:ok, result} -> [{tag, Gfreq.p_average(result)}]
-            {:error, err, path} ->
-              if flags[:printerrors] do
-                IO.puts(:stderr, "Error: #{:file.format_error(err)} :: #{path}")
-              end
-              [{"error", -1}]
+          {:ok, result} -> result
+          {:error, err, path} ->
+             if flags[:printerrors] do
+               IO.puts(:stderr, "Error: #{:file.format_error(err)} :: #{path}")
+             end
+             []
           end)
         ### aggregate
         |> merge_purchases

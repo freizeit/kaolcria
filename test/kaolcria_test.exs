@@ -349,7 +349,7 @@ defmodule ProcessJsonFilesTest do
     """}
     ]
   test "process_json_files(), all files readable", context do
-    expected = %{{"airline", 6.0e3} => 6}
+    expected = %{{"airline", {9000, 10014}} => 6}
     flags = %{anonymize: true, printerrors: false}
     assert Kaolcria.process_json_files(
       context[:tpath], "airline", flags) == expected
@@ -430,7 +430,7 @@ defmodule ProcessJsonFilesTest do
   test "process_json_files(), 1.json not readable", context do
     flags = %{anonymize: true, printerrors: false}
     assert Kaolcria.process_json_files(
-      context[:tpath], "airline", flags) == %{{"airline", 1.0e4} => 6}
+      context[:tpath], "airline", flags) == %{{"airline", {9000, 10014}} => 8}
   end
 
 
@@ -515,8 +515,7 @@ defmodule ProcessJsonFilesTest do
     """}
     ]
   test "process_json_files(), `anonymize` flag off", context do
-    expected = %{
-      {"airline", 6716.666666666667} => 1, {"airline", 9714.285714285714} => 1}
+    expected = %{{"airline", {141, 287}} => 1, {"airline", {9000, 10014}} => 2}
     flags = %{anonymize: false, printerrors: false}
     assert Kaolcria.process_json_files(context[:tpath], "airline", flags) == expected
   end
@@ -575,7 +574,7 @@ defmodule ExtractPurchasesTest do
     ]}
     """
   test "extract_purchases(), single entry", context do
-    expected = {:ok, [{"airline", 150}]}
+    expected = {:ok, [{"airline", {141, 287}}]}
     assert Kaolcria.extract_purchases(context[:fpath]) == expected
   end
 
@@ -591,9 +590,7 @@ defmodule ExtractPurchasesTest do
     ]}
     """
   test "extract_purchases(), 5x10k", context do
-    expected = {:ok, [
-      {"airline", 10000}, {"airline", 10000}, {"airline", 10000},
-      {"airline", 10000}, {"airline", 10000}]}
+    expected = {:ok, [{"airline", {9000, 10014}}]}
     assert Kaolcria.extract_purchases(context[:fpath]) == expected
   end
 
@@ -608,7 +605,7 @@ defmodule ExtractPurchasesTest do
     ]}
     """
   test "extract_purchases(), no airline purchases", context do
-    expected = {:ok, [{"drink", 4}, {"drink", 6}]}
+    expected = {:ok, [{"drink", {0, 140}}]}
     assert Kaolcria.extract_purchases(context[:fpath], "drink") == expected
   end
 
@@ -624,9 +621,9 @@ defmodule ExtractPurchasesTest do
     ]}
     """
   test "extract_purchases(), mixed bag", context do
-    expected = {:ok, [
-      {"airline", 102}, {"airline", 1003}, {"airline", 1003},
-      {"airline", 10004}, {"airline", 10004}]}
+    expected = {:ok, [{"airline", {0, 140}},
+                      {"airline", {905, 1177}},
+                      {"airline", {9000, 10014}}]}
     assert Kaolcria.extract_purchases(context[:fpath]) == expected
   end
 
